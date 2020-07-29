@@ -6,7 +6,7 @@ import java.util.HashSet;
 
 public class Lexer {
 
-	private static final HashSet<String> keywords = new HashSet<String>(Arrays.asList("int", "if", "true", "false"));
+	private static final HashSet<String> keywords = new HashSet<String>(Arrays.asList("int", "if", "true", "false", "main", "func"));
 	private static final HashSet<String> operators = new HashSet<String>(
 			Arrays.asList("=", "==", "+", "-", "&&", "||"));
 	private static final HashSet<String> seperators = new HashSet<String>(Arrays.asList("{", "}", "(", ")", ";"));
@@ -34,17 +34,25 @@ public class Lexer {
 			String c1 = peekMulti(1);
 			
 			if(peekMulti(2).matches(matchCommentStart)) {
-				tokens.add(new Token(readWhileRegex(matchCommentCharacter), TokenType.COMMENT));
+				Token t = new Token(readWhileRegex(matchCommentCharacter), TokenType.COMMENT);
+				t.lineCol(line, col);
+				tokens.add(t);
 			} else if (c1.matches(matchKeywordsIdentifiers)) {
 				String kwid = readWhileRegex(matchKeywordsIdentifiers);
 				if(keywords.contains(kwid)) {
-					tokens.add(new Token(kwid, TokenType.KEYWORD));
+					Token t = new Token(kwid, TokenType.KEYWORD);
+					t.lineCol(line, col);
+					tokens.add(t);
 				} else {
-					tokens.add(new Token(kwid, TokenType.IDENTIFIER));					
+					Token t = new Token(kwid, TokenType.IDENTIFIER);
+					t.lineCol(line, col);
+					tokens.add(t);
 				}
 			} else if (c1.matches(matchSeperators)) {
 				if(seperators.contains(c1)) {
-					tokens.add(new Token(c1, TokenType.SEPERATOR));
+					Token t = new Token(c1, TokenType.SEPERATOR);
+					t.lineCol(line, col);
+					tokens.add(t);
 					pop();
 				} else {
 					throw new UnknownSeperatorException("Unknown operator " + c1 + " at line " + line + ", column " + col);
@@ -52,12 +60,16 @@ public class Lexer {
 			} else if (c1.matches(matchOperators)) {
 				String possibleOp = readWhileRegex(matchOperators);
 				if(operators.contains(possibleOp)) {
-					tokens.add(new Token(possibleOp, TokenType.OPERATOR));
+					Token t = new Token(possibleOp, TokenType.OPERATOR);
+					t.lineCol(line, col);
+					tokens.add(t);
 				} else {
 					throw new UnknownOperatorException("Unknown operator \"" + possibleOp + "\" at line " + line + ", column " + col);
 				}
 			} else if(c1.matches(matchNumbers)) {
-				tokens.add(new Token(readNumber(), TokenType.LITERAL_NUM));
+				Token t = new Token(readNumber(), TokenType.LITERAL_NUM);
+				t.lineCol(line, col);
+				tokens.add(t);
 			} else if(c1.matches(matchWhiteSpace)) {
 				pop();
 			} else {

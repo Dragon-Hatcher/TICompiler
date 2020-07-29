@@ -3,11 +3,14 @@ package tiCompiler;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import lexer.Lexer;
+import lexer.Token;
 import lexer.UnableToLexCharacterException;
 import lexer.UnknownOperatorException;
 import lexer.UnknownSeperatorException;
+import parser.Parser;
 
 public class TICompiler {
 
@@ -18,14 +21,23 @@ public class TICompiler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		Lexer lexer = new Lexer();
+		ArrayList<Token> tokens = new ArrayList<Token>();
 		try {
-			lexer.lex(code);
+			tokens = lexer.lex(code);
 		} catch (UnknownOperatorException e) {
 			e.printStackTrace();
 		} catch (UnknownSeperatorException e) {
 			e.printStackTrace();
 		} catch (UnableToLexCharacterException e) {
+			e.printStackTrace();
+		}
+		
+		Parser parser = new Parser();
+		try {
+			System.out.println(parser.parse(tokens));
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
