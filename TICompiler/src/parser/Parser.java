@@ -36,7 +36,6 @@ public class Parser {
 				mainLevel.functions.add(parseFunctionDecleration());
 			} else if (isKw("main")) {
 				Token next = pop();
-				System.out.println(next);
 				if(!mainFound) {
 					mainLevel.main = parseInstructionSequence("{", "}");
 					mainFound = true;
@@ -61,18 +60,30 @@ public class Parser {
 	}
 	
 	private InstructionSequencePN parseInstructionSequence(String start, String end) throws Exception {		
-		InstructionSequencePN instructions = new InstructionSequencePN();
-
-		if(!isSep(start)) {
+		try {
+			eatToken(new Token(start, TokenType.SEPERATOR));
+		} catch (Exception e) {
 			throw new IllegalInstructionSequenceStartException("Instruction sequences must start with " + start + ". The sequence on line " + peek().line + ", col " + peek().col + " starts with " + peek().text + ".");
-		} else {
-			pop();
 		}
+		
+		InstructionSequencePN instructions = new InstructionSequencePN();
 		
 		while(!isSep(end)) {
 			
-			if(isSep("(")) {
-				instructions.instructions.add(new AssignmentPN("test", parseExpression("(", ")")));
+			if(isId()) {
+				Token id = pop();
+				if(isSep("(")) {
+					instructions.instructions.add(parseFunctionCall(id.text));
+				} else if (isAssign()){
+					instructions.instructions.add(new AssignmentPN(id.text, parseExpression(new Token("=", TokenType.ASSIGNMENT), new Token(";", TokenType.SEPERATOR))));
+				}
+			} else if(isKw("var")) { 
+				instructions.instructions.addAll(parseVarDecleration(new Token(";", TokenType.SEPERATOR))); 
+			} else if (isKw("if")) {
+				pop();
+				Evaluable expression = parseExpression(new Token("(", TokenType.SEPERATOR), new Token(")", TokenType.SEPERATOR));
+				InstructionSequencePN ifInstructions = parseInstructionSequence("{", "}");
+				instructions.instructions.add(new IfPN(expression, ifInstructions));
 			} else {
 				Token next = pop();
 			}
@@ -86,19 +97,54 @@ public class Parser {
 		return instructions;
 	}
 	
-	private Evaluable parseExpression(String start, String end) throws Exception {
-		if(!isSep(start)) {
-			throw new IllegalExpressionStartException("The expression on " + peek().lcText() + " must start with " + start + ". Instead is starts with " + peek());
+	private ArrayList<Instruction> parseVarDecleration(Token end) throws Exception {
+		eatToken(new Token("var", TokenType.KEYWORD));
+		
+		String name; 
+		if(isId()) {
+			name = pop().text;
 		} else {
-			pop();
+			throw new UnexpectedTokenException("Expected identifier after var on " + peek().lcText() + ", but instead found " + peek() + ".");
+		}
+		
+		eatToken(new Token(":", TokenType.SEPERATOR));
+		
+		String type; 
+		if(isId()) {
+			type = pop().text;
+		} else {
+			throw new UnexpectedTokenException("Expected identifier after var name on " + peek().lcText() + ", but instead found " + peek() + ".");
+		}
+		
+		AssignmentPN possibleAssign = null;
+		if(isAssign("=")) {
+			Evaluable expression = parseExpression(new Token("=", TokenType.ASSIGNMENT), new Token(";", TokenType.SEPERATOR));
+			possibleAssign = new AssignmentPN(name, expression);
+		}
+		
+		VariableDeclerationPN decleration = new VariableDeclerationPN(type, name);
+		
+		ArrayList<Instruction> ret = new ArrayList<Instruction>();
+		ret.add(decleration);
+		if(possibleAssign != null) {
+			ret.add(possibleAssign);
+		}
+		return ret;
+	}
+
+	private Evaluable parseExpression(Token start, Token end) throws Exception {
+		try {
+			eatToken(start);
+		} catch (Exception e) {
+			throw new IllegalExpressionStartException("The expression on " + peek().lcText() + " must start with " + start + ". Instead is starts with " + peek() + ".");
 		}
 		
 		Evaluable ret = parseBinary(parseEvaluableAtom(), 0);
 		
-		if(!isSep(end)) {
-			throw new IllegalExpressionEndException("The expression on " + peek().lcText() + " must end with " + start + ". Instead is ends with " + peek());
-		} else {
-			pop();
+		try {
+			eatToken(end);
+		} catch (Exception e) {
+			throw new IllegalExpressionEndException("The expression on " + peek().lcText() + " must end with " + end + ". Instead is ends with " + peek());
 		}
 		
 		return ret;
@@ -120,8 +166,10 @@ public class Parser {
 	private Evaluable parseEvaluableAtom() throws Exception {
 		if(isNumLit()) {
 			return new NumLitteralPN(pop().text);
+		} else if (isKw("true") || isKw("false")) { 
+			return new BooleanLitteralPN(pop().text);
 		} else if(isSep("(")) {
-			return parseExpression("(", ")");
+			return parseExpression(new Token("(", TokenType.SEPERATOR), new Token(")", TokenType.SEPERATOR));
 		} else if (isId()) {
 			String name = pop().text;
 			if(isSep("(")) {
@@ -142,8 +190,8 @@ public class Parser {
 		return peek().hasProps(punc, TokenType.SEPERATOR);
 	}
 
-	private boolean isKw(String punc) {
-		return peek().hasProps(punc, TokenType.KEYWORD);
+	private boolean isKw(String kw) {
+		return peek().hasProps(kw, TokenType.KEYWORD);
 	}
 
 	private boolean isOp() {
@@ -154,8 +202,24 @@ public class Parser {
 		return peek().type == TokenType.IDENTIFIER;
 	}
 	
+	private boolean isAssign() {
+		return peek().type == TokenType.ASSIGNMENT;
+	}
+
+	private boolean isAssign(String assign) {
+		return peek().hasProps(assign, TokenType.ASSIGNMENT);
+	}
+
 	private boolean isNumLit() {
 		return peek().type == TokenType.LITERAL_NUM;
+	}
+		
+	private void eatToken(Token token) throws Exception {
+		if(peek().equals(token)) {
+			pop();
+		} else {
+			throw new UnexpectedTokenException("Exspected token " + token + " on line " + peek().lcText() + ". Instead found " + peek() + ".");
+		}
 	}
 	
 	private Token peek() {

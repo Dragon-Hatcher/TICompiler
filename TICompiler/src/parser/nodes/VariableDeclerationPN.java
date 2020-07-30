@@ -1,4 +1,4 @@
-package parser.nodes;
+ package parser.nodes;
 
 public class VariableDeclerationPN extends ParseNode implements Instruction {
 	public String type;

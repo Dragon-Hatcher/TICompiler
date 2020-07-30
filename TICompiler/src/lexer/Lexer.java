@@ -78,10 +78,10 @@ public class Lexer {
 			}
 		}
 		
-		for(Token i : tokens) {
-			System.out.println(i);
-		}
-		System.out.println("----");
+//		for(Token i : tokens) {
+//			System.out.println(i);
+//		}
+//		System.out.println("----");
 		
 		return tokens;
 	}

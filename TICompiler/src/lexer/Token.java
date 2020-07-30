@@ -18,7 +18,7 @@ public class Token {
 	}
 	
 	public boolean equals(Token other) {
-		return other.text.equals(text) && other.type == type;
+		return other.text.equals(this.text) && other.type == this.type;
 	}
 	
 	public boolean hasProps(String text, TokenType type) {

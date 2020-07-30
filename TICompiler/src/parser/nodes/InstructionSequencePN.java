@@ -17,7 +17,7 @@ public class InstructionSequencePN extends ParseNode {
 			}
 		}
 		
-		return "(InstructionSequence:\n" + String.join("\n", lines) + ")\n";
+		return "(InstructionSequence:\n" + String.join("\n", lines) + "\n)\n";
 	}
 
 }

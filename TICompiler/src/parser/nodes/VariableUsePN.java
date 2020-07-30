@@ -10,7 +10,7 @@ public class VariableUsePN extends ParseNode implements Evaluable {
 	
 	@Override
 	public String toString() {
-		return name;
+		return "var: " + name;
 	}
 
 }
