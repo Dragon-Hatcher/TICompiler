@@ -1,13 +1,16 @@
 package parser.nodes;
 
-import langaugeConstructs.Types;
-
 public class VariableDeclerationPN extends ParseNode implements Instruction {
-	public Types type;
+	public String type;
 	public String name;
+	
+	public VariableDeclerationPN(String type, String name) {
+		this.type = type;
+		this.name = name;
+	}
 
 	@Override
 	public String toString() {
-		return "(Var Decleration:\n  (Type: " + type.toString() + ")\n  (Name: " + name + ")\n)\n";
+		return "(Var Decleration:\n  (Type: " + type + ")\n  (Name: " + name + ")\n)\n";
 	}
 }

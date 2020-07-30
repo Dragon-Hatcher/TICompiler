@@ -1,14 +1,12 @@
-func test(int x) {
-
-}
-
 main {
-	int x = 1;
-	x = x + 1;
+	//var x:int = 1;
+	//x = x + 1;
+	
+	(1 + 2 * 3 + 6 / 2)
 	
 	//check if x is equals to 2 if so add three to it
-	if(x == 2 && true) {
-		int y = 3.156;
-		x = x + y;
-	}
+	//if(x == 2 && true) {
+	//	int y = 3.156;
+	//	x = x + y;
+	//}
 }

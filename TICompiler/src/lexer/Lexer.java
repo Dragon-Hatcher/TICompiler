@@ -4,16 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import langaugeConstructs.TokenValues;
+
 public class Lexer {
 
-	private static final HashSet<String> keywords = new HashSet<String>(Arrays.asList("int", "if", "true", "false", "main", "func"));
-	private static final HashSet<String> operators = new HashSet<String>(
-			Arrays.asList("=", "==", "+", "-", "&&", "||"));
-	private static final HashSet<String> seperators = new HashSet<String>(Arrays.asList("{", "}", "(", ")", ";"));
-
 	private static final String matchKeywordsIdentifiers = "[A-Za-z]*";
-	private static final String matchOperators = "[+*\\-\\/=&|]*";
-	private static final String matchSeperators = "[{}();]";
+	private static final String matchOperators = "[+*\\-\\/=&|:]*";
+	private static final String matchSeperators = "[{}();:]";
 	private static final String matchCommentStart = "(\\/\\/)";
 	private static final String matchCommentCharacter = "[^\r]";
 	private static final String matchNumbers = "[1-9]*";
@@ -39,7 +36,7 @@ public class Lexer {
 				tokens.add(t);
 			} else if (c1.matches(matchKeywordsIdentifiers)) {
 				String kwid = readWhileRegex(matchKeywordsIdentifiers);
-				if(keywords.contains(kwid)) {
+				if(TokenValues.keywords.contains(kwid)) {
 					Token t = new Token(kwid, TokenType.KEYWORD);
 					t.lineCol(line, col);
 					tokens.add(t);
@@ -49,7 +46,7 @@ public class Lexer {
 					tokens.add(t);
 				}
 			} else if (c1.matches(matchSeperators)) {
-				if(seperators.contains(c1)) {
+				if(TokenValues.seperators.contains(c1)) {
 					Token t = new Token(c1, TokenType.SEPERATOR);
 					t.lineCol(line, col);
 					tokens.add(t);
@@ -59,7 +56,11 @@ public class Lexer {
 				}
 			} else if (c1.matches(matchOperators)) {
 				String possibleOp = readWhileRegex(matchOperators);
-				if(operators.contains(possibleOp)) {
+				if(TokenValues.assignment.equals(possibleOp)) {
+					Token t = new Token(possibleOp, TokenType.ASSIGNMENT);
+					t.lineCol(line, col);
+					tokens.add(t);
+				} else if(TokenValues.operators.contains(possibleOp)) {
 					Token t = new Token(possibleOp, TokenType.OPERATOR);
 					t.lineCol(line, col);
 					tokens.add(t);

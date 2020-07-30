@@ -26,7 +26,11 @@ public class Token {
 	}
 	
 	public void lineCol(int line, int col) {
-		this.line = line;
-		this.col = col;
+		this.line = line + 1;
+		this.col = col + 1;
+	}
+	
+	public String lcText() {
+		return "line " + line + ", col " + col; 
 	}
 }
