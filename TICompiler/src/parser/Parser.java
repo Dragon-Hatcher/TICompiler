@@ -192,7 +192,12 @@ public class Parser {
 			throw new IllegalExpressionStartException("The expression on " + peek().lcText() + " must start with " + start + ". Instead is starts with " + peek() + ".");
 		}
 		
-		Evaluable ret = parseBinary(parseEvaluableAtom(), 0);
+		return parseExpression(end);
+	}
+
+	
+	private Evaluable parseExpression(Token end) throws Exception {		
+		Evaluable ret = parseExpression();
 		
 		try {
 			eatToken(end);
@@ -201,6 +206,11 @@ public class Parser {
 		}
 		
 		return ret;
+	}
+
+	
+	private Evaluable parseExpression() throws Exception {		
+		return parseBinary(parseEvaluableAtom(), 0);
 	}
 	
 	private Evaluable parseBinary(Evaluable left, int myPres) throws Exception {
@@ -235,8 +245,23 @@ public class Parser {
 		}
 	}
 		
-	private FunctionCallPN parseFunctionCall(String name) {
-		return new FunctionCallPN();
+	private FunctionCallPN parseFunctionCall(String name) throws Exception {
+		eatToken(new Token("(", TokenType.SEPERATOR));
+		
+		FunctionCallPN call = new FunctionCallPN();
+		call.functionName = name;
+		
+		while(true) {		
+			call.params.add(parseExpression());
+			try {
+				eatToken(new Token(",", TokenType.SEPERATOR));
+			} catch(Exception e) {
+				eatToken(new Token(")", TokenType.SEPERATOR));
+				break;
+			}
+		}
+		
+		return call;
 	}
 	
 	private boolean isSep(String punc) {

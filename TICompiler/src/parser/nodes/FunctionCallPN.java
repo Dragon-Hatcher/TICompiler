@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class FunctionCallPN extends ParseNode implements Evaluable, Instruction {
 
-	String functionName = "";
-	ArrayList<Evaluable> params = new ArrayList<Evaluable>();
+	public String functionName = "";
+	public ArrayList<Evaluable> params = new ArrayList<Evaluable>();
 	
 	public String toString() {
 		ArrayList<String> paramLines = new ArrayList<String>();
@@ -13,11 +13,11 @@ public class FunctionCallPN extends ParseNode implements Evaluable, Instruction 
 		for(Evaluable p : params) {
 			String[] pLines = p.toString().split("\n");
 			for(String j : pLines) {
-				paramLines.add("  " + j);
+				paramLines.add("    " + j);
 			}
 		}
 		
-		return "(Function Call:\n  (Name: " + functionName + ")\n" + String.join("\n", paramLines) + "\n)\n";
+		return "(Function Call:\n  (Name: " + functionName + ")\n  (Params:\n" + String.join("\n", paramLines) + "\n  )\n)\n";
 	}
 
 }

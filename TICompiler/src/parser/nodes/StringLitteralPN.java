@@ -10,7 +10,7 @@ public class StringLitteralPN extends ParseNode implements Evaluable {
 	
 	@Override
 	public String toString() {
-		return "\"" + str + "\"";
+		return "(\"" + str + "\")";
 	}
 
 }

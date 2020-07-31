@@ -9,6 +9,6 @@ public class BooleanLitteralPN implements Evaluable {
 	
 	@Override
 	public String toString() {
-		return trueOrFalse;
+		return "("+trueOrFalse+")";
 	}
 }

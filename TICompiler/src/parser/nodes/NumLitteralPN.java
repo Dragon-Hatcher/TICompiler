@@ -10,7 +10,7 @@ public class NumLitteralPN extends ParseNode implements Evaluable {
 	
 	@Override
 	public String toString() {
-		return num;
+		return "("+num+")";
 	}
 
 }
