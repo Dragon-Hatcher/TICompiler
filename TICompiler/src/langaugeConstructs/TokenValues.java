@@ -8,11 +8,11 @@ import static java.util.Map.Entry;
 
 public class TokenValues {
 
-	public static final HashSet<String> keywords = new HashSet<String>(Arrays.asList("var", "if", "true", "false", "main", "func"));
+	public static final HashSet<String> keywords = new HashSet<String>(Arrays.asList("var", "if", "true", "false", "main", "func", "return"));
 	public static final HashSet<String> operators = new HashSet<String>(
 			Arrays.asList("==", "+", "-", "*", "/", "&&", "||"));
 	public static final String assignment = "=";
-	public static final HashSet<String> seperators = new HashSet<String>(Arrays.asList("{", "}", "(", ")", ";", ":"));
+	public static final HashSet<String> seperators = new HashSet<String>(Arrays.asList("{", "}", "(", ")", ";", ":", ",", "->"));
 
 	public static final Map<String, Integer> operatorPrecedence = Map.ofEntries(
 			Map.entry("(", 1500),

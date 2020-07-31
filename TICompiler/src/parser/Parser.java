@@ -40,11 +40,11 @@ public class Parser {
 					mainLevel.main = parseInstructionSequence("{", "}");
 					mainFound = true;
 				} else {
-					throw new DuplicateMainException("Only one main function is allowed. A second was found at line " + next.line + ", col " + next.col + ".");
+					throw new DuplicateMainException("Only one main function is allowed. A second was found at " + next.lcText() + ".");
 				}
 			} else {
 				Token next = pop();
-				throw new IllegalTokenOnRootLevelException("Invalid token " + next.text + " of type " + next.type.toString() + " at line " + next.line + ", col " + next.col + ". Only main and func are allowed on the root level.");
+				throw new IllegalTokenOnRootLevelException("Invalid token " + next + " at " + next.lcText() + ". Only main and func are allowed on the root level.");
 			}
 		}
 		
@@ -56,7 +56,58 @@ public class Parser {
 	}
 	
 	private FunctionDeclerationPN parseFunctionDecleration() throws Exception {
-		return new FunctionDeclerationPN();
+		FunctionDeclerationPN function = new FunctionDeclerationPN();
+		
+		if(isId()) {
+			function.name = pop().text;
+		} else {
+			throw new UnexpectedTokenException("Expected identifier after func on " + peek().lcText() + ", but instead found " + peek() + ".");
+		}
+
+		eatToken(new Token("(", TokenType.SEPERATOR));
+		while(true) {
+			String type;
+			if(isId()) {
+				type = pop().text;
+			} else {
+				throw new UnexpectedTokenException("Expected type in function parameter list on " + peek().lcText() + ", but instead found " + peek() + ".");
+			}
+
+			String varName = "";
+			if(isId()) {
+				varName = pop().text;
+			} else {
+				throw new UnexpectedTokenException("Expected identifier after func list on " + peek().lcText() + ", but instead found " + peek() + ".");
+			}
+
+			VariableDeclerationPN param = new VariableDeclerationPN(type, varName);
+			function.parameters.add(param);
+			
+			try {
+				eatToken(new Token(",", TokenType.SEPERATOR));
+			} catch(Exception e) {
+				eatToken(new Token(")", TokenType.SEPERATOR));
+				break;
+			}
+		}
+		
+		if(isSep("->")) {
+			pop();
+			
+			if(isId()) {
+				function.returnType = pop().text;
+			} else {
+				throw new UnexpectedTokenException("Expected return type after -> on " + peek().lcText() + ", but instead found " + peek() + ".");
+			}
+		}
+		
+		function.instructions = parseInstructionSequence("{", "}");
+		
+		return function;
+	}
+	
+	private ReturnStatementPN parseReturnStatement() throws Exception {
+		return new ReturnStatementPN(parseExpression(new Token("return", TokenType.KEYWORD), new Token(";", TokenType.SEPERATOR)));
 	}
 	
 	private InstructionSequencePN parseInstructionSequence(String start, String end) throws Exception {		
@@ -84,6 +135,8 @@ public class Parser {
 				Evaluable expression = parseExpression(new Token("(", TokenType.SEPERATOR), new Token(")", TokenType.SEPERATOR));
 				InstructionSequencePN ifInstructions = parseInstructionSequence("{", "}");
 				instructions.instructions.add(new IfPN(expression, ifInstructions));
+			} else if (isKw("return")) {
+				instructions.instructions.add(parseReturnStatement());
 			} else {
 				Token next = pop();
 			}

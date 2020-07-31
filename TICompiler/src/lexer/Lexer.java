@@ -10,7 +10,7 @@ public class Lexer {
 
 	private static final String matchKeywordsIdentifiers = "[A-Za-z]*";
 	private static final String matchOperators = "[+*\\-\\/=&|:]*";
-	private static final String matchSeperators = "[{}();:]";
+	private static final String matchSeperators = "[{}();:,]";
 	private static final String matchCommentStart = "(\\/\\/)";
 	private static final String matchCommentCharacter = "[^\r]";
 	private static final String matchNumbers = "[1-9]*";
@@ -29,8 +29,9 @@ public class Lexer {
 		
 		while(!eof()) {
 			String c1 = peekMulti(1);
+			String c2 = peekMulti(2);
 			
-			if(peekMulti(2).matches(matchCommentStart)) {
+			if(c2.matches(matchCommentStart)) {
 				Token t = new Token(readWhileRegex(matchCommentCharacter), TokenType.COMMENT);
 				t.lineCol(line, col);
 				tokens.add(t);
@@ -54,6 +55,12 @@ public class Lexer {
 				} else {
 					throw new UnknownSeperatorException("Unknown operator " + c1 + " at line " + line + ", column " + col);
 				}
+			} else if (c2.equals("->")) {
+				Token t = new Token("->", TokenType.SEPERATOR);
+				t.lineCol(line, col);
+				tokens.add(t);
+				pop();
+				pop();				
 			} else if (c1.matches(matchOperators)) {
 				String possibleOp = readWhileRegex(matchOperators);
 				if(TokenValues.assignment.equals(possibleOp)) {

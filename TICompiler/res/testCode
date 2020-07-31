@@ -1,3 +1,7 @@
+func testFunc(int x, str y, bool z) -> int {
+	return x + y + z;
+}
+
 main {
 	var x:int = 1;
 	x = x + 1;

@@ -6,6 +6,7 @@ public class FunctionDeclerationPN extends ParseNode {
 
 	public String name = "";
 	public ArrayList<VariableDeclerationPN> parameters = new ArrayList<VariableDeclerationPN>();
+	public String returnType = ""; //empty for void
 	public InstructionSequencePN instructions = new InstructionSequencePN();
 
 	@Override
@@ -16,7 +17,7 @@ public class FunctionDeclerationPN extends ParseNode {
 		for(VariableDeclerationPN p : parameters) {
 			String[] pLines = p.toString().split("\n");
 			for(String j : pLines) {
-				paramLines.add("  " + j);
+				paramLines.add("    " + j);
 			}
 		}
 		
@@ -29,7 +30,7 @@ public class FunctionDeclerationPN extends ParseNode {
 		"  (Name: " + name + ")\n" + 
 		"  (Params:\n" +
 		String.join("\n", paramLines) + 
-		"  )\n" +
+		"\n  )\n" +
 		String.join("\n", bodyLines) + "\n" +
 		")\n";
 	}
