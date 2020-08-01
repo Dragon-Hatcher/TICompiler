@@ -9,11 +9,11 @@ import langaugeConstructs.TokenValues;
 public class Lexer {
 
 	private static final String matchKeywordsIdentifiers = "[A-Za-z]*";
-	private static final String matchOperators = "[+*\\-\\/=&|:]*";
+	private static final String matchOperators = "[+*\\-\\/=&|:<>]*";
 	private static final String matchSeperators = "[{}();:,]";
 	private static final String matchCommentStart = "(\\/\\/)";
 	private static final String matchCommentCharacter = "[^\r]";
-	private static final String matchNumbers = "[1-9]*";
+	private static final String matchNumbers = "[0-9]*";
 	private static final char decimalPoint = '.';
 	private static final String matchWhiteSpace = "[ \n\r\t]*";
 	
@@ -63,7 +63,7 @@ public class Lexer {
 				pop();				
 			} else if (c1.matches(matchOperators)) {
 				String possibleOp = readWhileRegex(matchOperators);
-				if(TokenValues.assignment.equals(possibleOp)) {
+				if(TokenValues.assignments.contains(possibleOp)) {
 					Token t = new Token(possibleOp, TokenType.ASSIGNMENT);
 					t.lineCol(line, col);
 					tokens.add(t);

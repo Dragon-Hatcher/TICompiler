@@ -1,16 +1,25 @@
-func testFunc(int x, str y, bool z) -> int {
+func add(int x, int y, int z) -> int {
 	return x + y + z;
 }
 
 main {
 	var x:int = 1;
-	x = x + 1;
+	x += 1;
 	
 	x = 1 + 2 * 3 + 6 / 2;
 	
-	//check if x is equals to 2 if so add three to it
+	//check if x is equals to 2 if so add 3.156 and 5 to it
 	if(x == 2 && true) {
-		int y = 3.156;
-		x = x + y;
+		var y:int = 3.156;
+		x = testFunc(x, y, 5);
+	} else if (x > 10) {
+		x -= 10;
+	} else {
+		x -= 3;
+	}
+	
+	while(x < 100) {
+		x += 1;
+		break;
 	}
 }

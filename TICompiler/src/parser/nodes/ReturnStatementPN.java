@@ -1,6 +1,7 @@
 package parser.nodes;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 public class ReturnStatementPN extends ParseNode implements Instruction {
 
@@ -20,6 +21,18 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 		}
 		
 		return "(Return:\n" + String.join("\n", statementStrings)  + "\n)\n";
+	}
+
+	public boolean willReturn() {
+		return true;
+	}
+
+	public boolean hasIllegalBreak() {
+		return false;
+	}
+
+	public String hasIllegalDeclerationType(Set<String> types) {
+		return null;
 	}
 
 }

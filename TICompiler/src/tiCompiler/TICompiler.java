@@ -11,6 +11,9 @@ import lexer.UnableToLexCharacterException;
 import lexer.UnknownOperatorException;
 import lexer.UnknownSeperatorException;
 import parser.Parser;
+import parser.nodes.MainLevelPN;
+import parser.nodes.ParseNode;
+import semanticAnalyzer.SemanticAnalyzer;
 
 public class TICompiler {
 
@@ -35,10 +38,19 @@ public class TICompiler {
 		}
 		
 		Parser parser = new Parser();
+		MainLevelPN mainLevelParseNode = null;
 		try {
-			System.out.println(parser.parse(tokens));
+			mainLevelParseNode = parser.parse(tokens);
+			//System.out.println(mainLevelParseNode);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		
+		SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+		try {
+			semanticAnalyzer.analyze(mainLevelParseNode);
+		} catch (Exception e) {
+			e.printStackTrace();			
 		}
 	}
 
