@@ -1,6 +1,7 @@
 package parser.nodes;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 public class ReturnStatementPN extends ParseNode implements Instruction {
@@ -32,6 +33,10 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 	}
 
 	public String hasIllegalDeclerationType(Set<String> types) {
+		return null;
+	}
+
+	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
 		return null;
 	}
 

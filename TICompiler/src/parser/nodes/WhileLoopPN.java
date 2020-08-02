@@ -1,6 +1,7 @@
 package parser.nodes;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 public class WhileLoopPN extends ParseNode implements Instruction {
@@ -48,6 +49,18 @@ public class WhileLoopPN extends ParseNode implements Instruction {
 
 	public String hasIllegalDeclerationType(Set<String> types) {
 		return instructions.hasIllegalDeclerationType(types);
+	}
+
+	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
+		FunctionCallPN condFC = condition.checkFunctionNameAndLength(functions);
+		FunctionCallPN bodyFC = instructions.checkFunctionNameAndLength(functions);
+		
+		if(condFC != null) {
+			return condFC;
+		} else {
+			return bodyFC;
+		}
+		
 	}
 
 }

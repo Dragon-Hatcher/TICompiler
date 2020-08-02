@@ -68,32 +68,37 @@ public class Parser {
 		}
 
 		eatToken(new Token("(", TokenType.SEPERATOR));
-		while (true) {
-			String type;
-			if (isId()) {
-				type = pop().text;
-			} else {
-				throw new UnexpectedTokenException("Expected type in function parameter list on " + peek().lcText()
-						+ ", but instead found " + peek() + ".");
-			}
 
-			String varName = "";
-			if (isId()) {
-				varName = pop().text;
-			} else {
-				throw new UnexpectedTokenException("Expected identifier after func list on " + peek().lcText()
-						+ ", but instead found " + peek() + ".");
-			}
+		if (!isSep(")")) {
+			while (true) {
+				String type;
+				if (isId()) {
+					type = pop().text;
+				} else {
+					throw new UnexpectedTokenException("Expected type in function parameter list on " + peek().lcText()
+							+ ", but instead found " + peek() + ".");
+				}
 
-			VariableDeclerationPN param = new VariableDeclerationPN(type, varName);
-			function.parameters.add(param);
+				String varName = "";
+				if (isId()) {
+					varName = pop().text;
+				} else {
+					throw new UnexpectedTokenException("Expected identifier after func list on " + peek().lcText()
+							+ ", but instead found " + peek() + ".");
+				}
 
-			try {
-				eatToken(new Token(",", TokenType.SEPERATOR));
-			} catch (Exception e) {
-				eatToken(new Token(")", TokenType.SEPERATOR));
-				break;
+				VariableDeclerationPN param = new VariableDeclerationPN(type, varName);
+				function.parameters.add(param);
+
+				try {
+					eatToken(new Token(",", TokenType.SEPERATOR));
+				} catch (Exception e) {
+					eatToken(new Token(")", TokenType.SEPERATOR));
+					break;
+				}
 			}
+		} else {
+			eatToken(new Token(")", TokenType.SEPERATOR));
 		}
 
 		if (isSep("->")) {
@@ -129,11 +134,12 @@ public class Parser {
 		InstructionSequencePN instructions = new InstructionSequencePN();
 
 		while (!isSep(end)) {
-			
+
 			if (isId()) {
 				Token id = pop();
 				if (isSep("(")) {
 					instructions.instructions.add(parseFunctionCall(id.text));
+					eatToken(new Token(";", TokenType.SEPERATOR));
 				} else if (isAssign()) {
 					instructions.instructions.add(new AssignmentPN(id.text, peek().text, parseExpression(
 							new Token(peek().text, TokenType.ASSIGNMENT), new Token(";", TokenType.SEPERATOR))));
@@ -174,22 +180,22 @@ public class Parser {
 				new Token(")", TokenType.SEPERATOR));
 		InstructionSequencePN ifInstructions = parseInstructionSequence("{", "}");
 
-		if(!isKw("else")) {
+		if (!isKw("else")) {
 			return new IfPN(expression, ifInstructions, null);
 		} else {
 			pop();
 			InstructionSequencePN elseBody = new InstructionSequencePN();
 
-			if(isKw("if")) {
+			if (isKw("if")) {
 				elseBody.instructions.add(parseIf());
 			} else {
 				elseBody = parseInstructionSequence("{", "}");
 			}
-			
+
 			return new IfPN(expression, ifInstructions, elseBody);
 		}
 	}
-	
+
 	private ArrayList<Instruction> parseVarDecleration(Token end) throws Exception {
 		eatToken(new Token("var", TokenType.KEYWORD));
 
@@ -295,14 +301,19 @@ public class Parser {
 		FunctionCallPN call = new FunctionCallPN();
 		call.functionName = name;
 
-		while (true) {
-			call.params.add(parseExpression());
-			try {
-				eatToken(new Token(",", TokenType.SEPERATOR));
-			} catch (Exception e) {
-				eatToken(new Token(")", TokenType.SEPERATOR));
-				break;
+		if (!isSep(")")) {
+			while (true) {
+				call.params.add(parseExpression());
+
+				try {
+					eatToken(new Token(",", TokenType.SEPERATOR));
+				} catch (Exception e) {
+					eatToken(new Token(")", TokenType.SEPERATOR));
+					break;
+				}
 			}
+		} else {
+			eatToken(new Token(")", TokenType.SEPERATOR));
 		}
 
 		return call;

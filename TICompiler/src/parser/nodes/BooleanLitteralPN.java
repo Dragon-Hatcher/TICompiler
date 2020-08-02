@@ -1,5 +1,7 @@
 package parser.nodes;
 
+import java.util.Map;
+
 public class BooleanLitteralPN implements Evaluable {
 	String trueOrFalse = "";
 	
@@ -11,4 +13,11 @@ public class BooleanLitteralPN implements Evaluable {
 	public String toString() {
 		return "("+trueOrFalse+")";
 	}
+
+	@Override
+	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
+		return null;
+	}
+	
+	
 }

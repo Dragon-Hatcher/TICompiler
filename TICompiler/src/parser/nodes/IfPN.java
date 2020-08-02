@@ -1,6 +1,7 @@
 package parser.nodes;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 public class IfPN extends ParseNode implements Instruction {
@@ -65,12 +66,25 @@ public class IfPN extends ParseNode implements Instruction {
 
 		if(ifBody != null) {
 			return ifBody;
-		} else if (elseBody != null) {
-			return elseBody;
 		} else {
-			return null;
+			return elseBody;
 		}
 
+	}
+
+	@Override
+	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
+		FunctionCallPN condFC = condition.checkFunctionNameAndLength(functions);
+		FunctionCallPN ifFC = instructions.checkFunctionNameAndLength(functions);
+		FunctionCallPN elseFC = elseInstructions.checkFunctionNameAndLength(functions);
+		
+		if(condFC != null) {
+			return condFC;
+		} else if(ifFC != null) {
+			return ifFC;
+		} else {
+			return elseFC;
+		}
 	}
 
 }

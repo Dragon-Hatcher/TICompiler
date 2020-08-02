@@ -1,6 +1,7 @@
 package parser.nodes;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 public class FunctionCallPN extends ParseNode implements Evaluable, Instruction {
@@ -32,5 +33,18 @@ public class FunctionCallPN extends ParseNode implements Evaluable, Instruction 
 	public String hasIllegalDeclerationType(Set<String> types) {
 		return null;
 	}
+
+	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
+		if(!functions.containsKey(functionName)) {
+			return this;
+		}
+		
+		if(functions.get(functionName).parameters.size() != params.size()) {
+			return this;
+		}
+		
+		return null;
+	}
+
 
 }

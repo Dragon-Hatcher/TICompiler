@@ -1,5 +1,6 @@
  package parser.nodes;
 
+import java.util.Map;
 import java.util.Set;
 
 public class VariableDeclerationPN extends ParseNode implements Instruction {
@@ -26,6 +27,10 @@ public class VariableDeclerationPN extends ParseNode implements Instruction {
 
 	public String hasIllegalDeclerationType(Set<String> types) {
 		return types.contains(type) ? null : type;
+	}
+
+	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
+		return null;
 	}
 
 }

@@ -1,6 +1,7 @@
 package parser.nodes;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class BinaryExpressionPN extends ParseNode implements Evaluable {
 
@@ -30,6 +31,17 @@ public class BinaryExpressionPN extends ParseNode implements Evaluable {
 		}
 		
 		return "(" + op + "\n" + String.join("\n", leftStrings) + "\n" + String.join("\n", rightStrings) + "\n)\n";
+	}
+
+	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
+		FunctionCallPN leftFC = left.checkFunctionNameAndLength(functions);
+		FunctionCallPN rightFC = right.checkFunctionNameAndLength(functions);
+		
+		if(leftFC != null) {
+			return leftFC;
+		} else {
+			return rightFC;
+		}
 	}
 
 }

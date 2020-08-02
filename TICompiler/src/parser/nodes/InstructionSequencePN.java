@@ -1,6 +1,7 @@
 package parser.nodes;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 
 public class InstructionSequencePN extends ParseNode implements Instruction {
@@ -44,6 +45,16 @@ public class InstructionSequencePN extends ParseNode implements Instruction {
 			String iHIDT = i.hasIllegalDeclerationType(types);
 			if(iHIDT != null) {
 				return iHIDT;
+			}
+		}
+		return null;
+	}
+
+	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
+		for(Instruction i : instructions) {
+			FunctionCallPN iFC = i.checkFunctionNameAndLength(functions);
+			if(iFC != null) {
+				return iFC;
 			}
 		}
 		return null;
