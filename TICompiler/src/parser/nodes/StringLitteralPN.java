@@ -19,4 +19,15 @@ public class StringLitteralPN extends ParseNode implements Evaluable {
 		return null;
 	}
 
+	public String type() {
+		return "String";
+	}
+
+	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		this.variables = superVariables;
+	}
+
+	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
+		this.functions = functions;
+	}
 }

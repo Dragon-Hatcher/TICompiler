@@ -283,7 +283,7 @@ public enum Characters {
 		 case "\\down arrow\\": return Characters.down_arrow;
 		 case " ": return Characters.space;
 		 case "!": return Characters.exclamation;
-		 case "\"": return Characters.quote;
+		 case "\\\"\\": return Characters.quote;
 		 case "#": return Characters.pound_sign;
 		 case "\\pow 4\\": return Characters.fourth;
 		 case "%": return Characters.percent_sign;

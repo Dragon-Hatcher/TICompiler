@@ -12,7 +12,7 @@ import semanticAnalyzer.exceptions.*;
 
 public class SemanticAnalyzer {
 
-	Set<String> types = new HashSet<String>(Arrays.asList("int", "float", "bool"));
+	Set<String> types = new HashSet<String>(Arrays.asList("int", "float", "bool", "char"));
 	Map<String, FunctionDeclerationPN> functions = new HashMap<String, FunctionDeclerationPN>();
 	
 	public void analyze(MainLevelPN mainLevel) throws Exception {
@@ -68,6 +68,9 @@ public class SemanticAnalyzer {
 			}
 		}
 
+		mainLevel.setSubParseNodeVariables(new HashMap<String, String>());
+		mainLevel.setFunctions(functions);
+		
 		// check functions return v/
 		// check break is in a loop  v/
 		// check illegal type declaration v/

@@ -32,4 +32,11 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 		return null;
 	}
 
+	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		this.variables = superVariables;
+	}
+
+	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
+		this.functions = functions;
+	}
 }

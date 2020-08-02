@@ -35,4 +35,14 @@ public class AssignmentPN extends ParseNode implements Instruction, ContainsEval
 		return null;
 	}
 
+	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		this.variables = superVariables;
+		((ParseNode)toAssign).setSubParseNodeVariables(superVariables);
+	}
+
+	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
+		this.functions = functions;
+		((ParseNode)toAssign).setFunctions(functions);
+	}
+
 }

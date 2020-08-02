@@ -1,6 +1,7 @@
 package parser.nodes;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class FunctionDeclerationPN extends ParseNode {
 
@@ -33,6 +34,17 @@ public class FunctionDeclerationPN extends ParseNode {
 		"\n  )\n" +
 		String.join("\n", bodyLines) + "\n" +
 		")\n";
+	}
+
+	@Override
+	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		this.variables = superVariables;
+		instructions.findVariables();
+	}
+	
+	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
+		this.functions = functions;
+		((ParseNode)instructions).setFunctions(functions);
 	}
 
 }

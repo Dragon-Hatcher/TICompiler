@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import toolkit.Copy;
+
 public class IfPN extends ParseNode implements Instruction, ContainsInstructionSequence, ContainsEvaluable {
 	
 	Evaluable condition = null;
@@ -90,4 +92,18 @@ public class IfPN extends ParseNode implements Instruction, ContainsInstructionS
 		}
 	}
 
+	@Override
+	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		this.variables = superVariables;
+		((ParseNode)condition).setSubParseNodeVariables(superVariables);
+		instructions.setSubParseNodeVariables(Copy.deepCopyMap(superVariables));
+		elseInstructions.setSubParseNodeVariables(Copy.deepCopyMap(superVariables));
+	}
+
+	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
+		this.functions = functions;
+		((ParseNode)condition).setFunctions(functions);
+		((ParseNode)instructions).setFunctions(functions);
+		((ParseNode)elseInstructions).setFunctions(functions);
+	}
 }

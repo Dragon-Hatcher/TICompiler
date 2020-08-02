@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import toolkit.Copy;
+
 public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstructionSequence, ContainsEvaluable {
 
 	Evaluable condition = null;
@@ -64,6 +66,19 @@ public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstr
 			return bodyFC;
 		}
 		
+	}
+
+	@Override
+	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		this.variables = superVariables;
+		((ParseNode)condition).setSubParseNodeVariables(superVariables);
+		instructions.setSubParseNodeVariables(Copy.deepCopyMap(superVariables));
+	}
+	
+	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
+		this.functions = functions;
+		((ParseNode)condition).setFunctions(functions);
+		instructions.setFunctions(functions);
 	}
 
 }

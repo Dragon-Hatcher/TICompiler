@@ -19,4 +19,16 @@ public class NumLitteralPN extends ParseNode implements Evaluable {
 		return null;
 	}
 
+	public String type() {
+		return num.contains(".") ? "float" : "int";
+	}
+
+	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		this.variables = superVariables;
+	}
+	
+	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
+		this.functions = functions;
+	}
+
 }

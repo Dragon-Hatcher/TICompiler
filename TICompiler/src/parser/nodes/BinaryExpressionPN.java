@@ -3,6 +3,9 @@ package parser.nodes;
 import java.util.ArrayList;
 import java.util.Map;
 
+import langaugeConstructs.TokenValues;
+import parser.exceptions.*;
+
 public class BinaryExpressionPN extends ParseNode implements Evaluable, ContainsEvaluable {
 
 	Evaluable left = null;
@@ -50,5 +53,34 @@ public class BinaryExpressionPN extends ParseNode implements Evaluable, Contains
 			return rightFC;
 		}
 	}
+
+	@Override
+	public String type() throws Exception {
+		String leftType = left.type();
+		String rightType = right.type();
+		
+		if(!leftType.equals(rightType)) {
+			throw new MismatchedTypeException("Mismatched types " + leftType + " and " + rightType + ".");
+		}
+		
+		if(!TokenValues.opTypes.get(op).contains(leftType)) {
+			throw new OperatorInvalidOnTypeException("Operator " + op + " invalid on type " + leftType + ".");
+		}
+		
+		return leftType;
+	}
+
+	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		this.variables = superVariables;
+		((ParseNode)left).setSubParseNodeVariables(superVariables);
+		((ParseNode)right).setSubParseNodeVariables(superVariables);
+	}
+	
+	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
+		this.functions = functions;
+		((ParseNode)left).setFunctions(functions);
+		((ParseNode)right).setFunctions(functions);
+	}
+
 
 }

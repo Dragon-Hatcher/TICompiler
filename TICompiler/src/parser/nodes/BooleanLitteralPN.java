@@ -1,6 +1,8 @@
 package parser.nodes;
 
-public class BooleanLitteralPN implements Evaluable {
+import java.util.Map;
+
+public class BooleanLitteralPN extends ParseNode implements Evaluable {
 	String trueOrFalse = "";
 	
 	public BooleanLitteralPN(String trueOrFalse) {
@@ -10,6 +12,17 @@ public class BooleanLitteralPN implements Evaluable {
 	@Override
 	public String toString() {
 		return "("+trueOrFalse+")";
+	}
+
+	public String type() {
+		return "bool";
 	}	
 	
+	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		this.variables = superVariables;
+	}
+	
+	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
+		this.functions = functions;
+	}
 }

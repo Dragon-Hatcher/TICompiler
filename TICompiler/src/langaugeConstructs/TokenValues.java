@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+
 import static java.util.Map.Entry;
 
 public class TokenValues {
@@ -33,6 +35,20 @@ public class TokenValues {
 			Map.entry("-=", 100),
 			Map.entry("*=", 100),
 			Map.entry("/=", 100)
+	);
+	
+	public static final Map<String, Set<String>> opTypes = Map.ofEntries(
+			Map.entry("+", Set.of("int", "float")),
+			Map.entry("-", Set.of("int", "float")),
+			Map.entry("*", Set.of("int", "float")),
+			Map.entry("/", Set.of("int", "float")),
+			Map.entry("<", Set.of("int", "float", "char")),
+			Map.entry("<=", Set.of("int", "float", "char")),
+			Map.entry(">", Set.of("int", "float", "char")),
+			Map.entry(">=", Set.of("int", "float", "char")),
+			Map.entry("==", Set.of("int", "float", "char", "bool")),
+			Map.entry("&&", Set.of("bool")),
+			Map.entry("||", Set.of("bool"))
 	);
 	
 }

@@ -1,13 +1,16 @@
 package parser.nodes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import parser.exceptions.DuplicateVariableException;
 
 public class InstructionSequencePN extends ParseNode implements Instruction, ContainsInstructionSequence {
 
 	public ArrayList<Instruction> instructions = new ArrayList<Instruction>();
-
+	
 	@Override
 	public String toString() {
 		ArrayList<String> lines = new ArrayList<String>();
@@ -75,5 +78,32 @@ public class InstructionSequencePN extends ParseNode implements Instruction, Con
 			}
 		}
 		return null;
+	}
+	
+	public void findVariables() throws Exception {
+		for(Instruction i : instructions) {
+			if(i instanceof VariableDeclerationPN) {
+				VariableDeclerationPN iVD = (VariableDeclerationPN)i;
+				if(variables.containsKey(iVD.name)) {
+					throw new DuplicateVariableException("Duplicate variable name " + iVD.name + ".");
+				}
+				variables.put(iVD.name, iVD.type);
+			}
+		}
+	}
+
+	@Override
+	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		findVariables();
+		for(Instruction i : instructions) {
+			((ParseNode)i).setSubParseNodeVariables(this.variables);
+		}
+	}
+	
+	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
+		this.functions = functions;
+		for(Instruction i : instructions) {
+			((ParseNode)i).setFunctions(functions);
+		}	
 	}
 }
