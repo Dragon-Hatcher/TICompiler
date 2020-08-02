@@ -25,10 +25,9 @@ public class SemanticAnalyzer {
 				throw new IllegalBreakException("Illegal break in function " + i.name + ".");
 			}
 			
-			String iHITD = i.instructions.hasIllegalDeclerationType(types);
-			if(iHITD != null) {
-				//TODO change to passing back the decleration object
-				throw new IllegalTypeDeclerationException("Illegal decleration of type " + iHITD + " in function " + i.name + ".");
+			VariableDeclerationPN iIllegalVD = i.instructions.hasIllegalDeclerationType(types);
+			if(iIllegalVD != null) {
+				throw new IllegalTypeDeclerationException("Illegal decleration of type " + iIllegalVD.type + " for variable " + iIllegalVD.name + " in function " + i.name + ".");
 			}
 			
 			for(VariableDeclerationPN param : i.parameters) {
@@ -44,9 +43,9 @@ public class SemanticAnalyzer {
 			throw new IllegalBreakException("Illegal break in main.");
 		}		
 
-		String iHITD = mainLevel.main.hasIllegalDeclerationType(types);
-		if(iHITD != null) {
-			throw new IllegalTypeDeclerationException("Illegal decleration of type " + iHITD + " in main.");
+		VariableDeclerationPN mainIllegalVD = mainLevel.main.hasIllegalDeclerationType(types);
+		if(mainIllegalVD != null) {
+			throw new IllegalTypeDeclerationException("Illegal decleration of type " + mainIllegalVD.type + " for variable " + mainIllegalVD.name + " in main.");
 		}
 		
 		FunctionCallPN mainFC = mainLevel.main.checkFunctionNameAndLength(functions);
@@ -64,17 +63,19 @@ public class SemanticAnalyzer {
 				if(!functions.containsKey(funcFC.functionName)) {
 					throw new IllegalFunctionCallException("Illegal call to unknown function " + funcFC.functionName + " in function " + i.name + ".");
 				} else {
-					throw new IllegalFunctionCallException("Call to function " + funcFC.functionName + " in function " + i.name + "has " + funcFC.params.size() + " parameters instead of " + functions.get(funcFC.functionName).parameters.size() + ".");
+					throw new IllegalFunctionCallException("Call to function " + funcFC.functionName + " in function " + i.name + " has " + funcFC.params.size() + " parameters instead of " + functions.get(funcFC.functionName).parameters.size() + ".");
 				}
-			}			
+			}
 		}
 
 		// check functions return v/
 		// check break is in a loop  v/
 		// check illegal type declaration v/
 		// check func param types v/
-		// check function call exists
-		// check function call length
+		// check function call exists v/
+		// check function call length v/
+		// check voids don't return with value
+		
 	}
 	
 	private boolean functionShouldReturn(FunctionDeclerationPN func) {

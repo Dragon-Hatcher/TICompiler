@@ -118,8 +118,14 @@ public class Parser {
 	}
 
 	private ReturnStatementPN parseReturnStatement() throws Exception {
-		return new ReturnStatementPN(
-				parseExpression(new Token("return", TokenType.KEYWORD), new Token(";", TokenType.SEPERATOR)));
+		eatToken(new Token("return", TokenType.KEYWORD));
+		if(isSep(";")) {
+			eatToken(new Token(";", TokenType.SEPERATOR));
+			return new ReturnStatementPN();
+		} else {
+			return new ReturnStatementPN(
+				parseExpression(new Token(";", TokenType.SEPERATOR)));
+		}
 	}
 
 	private InstructionSequencePN parseInstructionSequence(String start, String end) throws Exception {

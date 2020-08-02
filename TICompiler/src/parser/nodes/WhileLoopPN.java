@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-public class WhileLoopPN extends ParseNode implements Instruction {
+public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstructionSequence, ContainsEvaluable {
 
 	Evaluable condition = null;
 	InstructionSequencePN instructions = new InstructionSequencePN();
@@ -47,12 +47,15 @@ public class WhileLoopPN extends ParseNode implements Instruction {
 		return false;
 	}
 
-	public String hasIllegalDeclerationType(Set<String> types) {
+	public VariableDeclerationPN hasIllegalDeclerationType(Set<String> types) {
 		return instructions.hasIllegalDeclerationType(types);
 	}
-
+	
 	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		FunctionCallPN condFC = condition.checkFunctionNameAndLength(functions);
+		FunctionCallPN condFC = null;
+		if(condition instanceof ContainsEvaluable) {
+			condFC = ((ContainsEvaluable)condition).checkFunctionNameAndLength(functions);
+		}
 		FunctionCallPN bodyFC = instructions.checkFunctionNameAndLength(functions);
 		
 		if(condFC != null) {

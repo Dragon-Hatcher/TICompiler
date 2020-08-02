@@ -3,7 +3,7 @@ package parser.nodes;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class BinaryExpressionPN extends ParseNode implements Evaluable {
+public class BinaryExpressionPN extends ParseNode implements Evaluable, ContainsEvaluable {
 
 	Evaluable left = null;
 	Evaluable right = null;
@@ -34,8 +34,15 @@ public class BinaryExpressionPN extends ParseNode implements Evaluable {
 	}
 
 	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		FunctionCallPN leftFC = left.checkFunctionNameAndLength(functions);
-		FunctionCallPN rightFC = right.checkFunctionNameAndLength(functions);
+		FunctionCallPN leftFC = null;
+		FunctionCallPN rightFC = null;
+		
+		if(left instanceof ContainsEvaluable) {
+			leftFC = ((ContainsEvaluable)left).checkFunctionNameAndLength(functions);
+		}
+		if(right instanceof ContainsEvaluable) {
+			rightFC = ((ContainsEvaluable)right).checkFunctionNameAndLength(functions);
+		}		
 		
 		if(leftFC != null) {
 			return leftFC;

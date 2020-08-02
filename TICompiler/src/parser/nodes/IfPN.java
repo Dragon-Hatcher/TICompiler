@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-public class IfPN extends ParseNode implements Instruction {
+public class IfPN extends ParseNode implements Instruction, ContainsInstructionSequence, ContainsEvaluable {
 	
 	Evaluable condition = null;
 	InstructionSequencePN instructions = new InstructionSequencePN();
@@ -60,9 +60,9 @@ public class IfPN extends ParseNode implements Instruction {
 		return instructions.hasIllegalBreak() || elseInstructions.hasIllegalBreak();
 	}
 
-	public String hasIllegalDeclerationType(Set<String> types) {
-		String ifBody = instructions.hasIllegalDeclerationType(types);
-		String elseBody = elseInstructions.hasIllegalDeclerationType(types);
+	public VariableDeclerationPN hasIllegalDeclerationType(Set<String> types) {
+		VariableDeclerationPN ifBody = instructions.hasIllegalDeclerationType(types);
+		VariableDeclerationPN elseBody = elseInstructions.hasIllegalDeclerationType(types);
 
 		if(ifBody != null) {
 			return ifBody;
@@ -74,7 +74,10 @@ public class IfPN extends ParseNode implements Instruction {
 
 	@Override
 	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		FunctionCallPN condFC = condition.checkFunctionNameAndLength(functions);
+		FunctionCallPN condFC = null;
+		if(condition instanceof ContainsEvaluable) {
+			condFC = ((ContainsEvaluable)condition).checkFunctionNameAndLength(functions);
+		}
 		FunctionCallPN ifFC = instructions.checkFunctionNameAndLength(functions);
 		FunctionCallPN elseFC = elseInstructions.checkFunctionNameAndLength(functions);
 		

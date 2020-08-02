@@ -17,18 +17,6 @@ public class VariableDeclerationPN extends ParseNode implements Instruction {
 		return "(Var Decleration:\n  (Type: " + type + ")\n  (Name: " + name + ")\n)\n";
 	}
 	
-	public boolean willReturn() {
-		return false;
-	}
-
-	public boolean hasIllegalBreak() {
-		return false;
-	}
-
-	public String hasIllegalDeclerationType(Set<String> types) {
-		return types.contains(type) ? null : type;
-	}
-
 	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
 		return null;
 	}

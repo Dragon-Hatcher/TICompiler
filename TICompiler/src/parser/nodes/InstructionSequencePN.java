@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-public class InstructionSequencePN extends ParseNode implements Instruction {
+public class InstructionSequencePN extends ParseNode implements Instruction, ContainsInstructionSequence {
 
 	public ArrayList<Instruction> instructions = new ArrayList<Instruction>();
 
@@ -24,7 +24,9 @@ public class InstructionSequencePN extends ParseNode implements Instruction {
 
 	public boolean willReturn() {
 		for(Instruction i : instructions) {
-			if(i.willReturn()) {
+			if(i instanceof ReturnStatementPN) {
+				return true;
+			} else if (i instanceof ContainsInstructionSequence && ((ContainsInstructionSequence)i).willReturn()) {
 				return true;
 			}
 		}
@@ -33,18 +35,24 @@ public class InstructionSequencePN extends ParseNode implements Instruction {
 	
 	public boolean hasIllegalBreak() {
 		for(Instruction i : instructions) {
-			if(i.hasIllegalBreak()) {
+			if(i instanceof BreakPN) {
+				return true;
+			} else if (i instanceof ContainsInstructionSequence && ((ContainsInstructionSequence)i).hasIllegalBreak()) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public String hasIllegalDeclerationType(Set<String> types) {
+	public VariableDeclerationPN hasIllegalDeclerationType(Set<String> types) {
 		for(Instruction i : instructions) {
-			String iHIDT = i.hasIllegalDeclerationType(types);
-			if(iHIDT != null) {
-				return iHIDT;
+			if(i instanceof VariableDeclerationPN && !types.contains(((VariableDeclerationPN)i).type)) {
+				return (VariableDeclerationPN)i;
+			} else if (i instanceof ContainsInstructionSequence) {
+				VariableDeclerationPN illegalDecleration = ((ContainsInstructionSequence)i).hasIllegalDeclerationType(types);
+				if(illegalDecleration != null) {
+					return illegalDecleration;
+				}
 			}
 		}
 		return null;
@@ -52,9 +60,18 @@ public class InstructionSequencePN extends ParseNode implements Instruction {
 
 	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
 		for(Instruction i : instructions) {
-			FunctionCallPN iFC = i.checkFunctionNameAndLength(functions);
-			if(iFC != null) {
-				return iFC;
+			if(i instanceof FunctionCallPN && ((FunctionCallPN)i).hasBadFunctionNameOrLength(functions)) {
+				return (FunctionCallPN)i;
+			} else if (i instanceof ContainsInstructionSequence) {
+				FunctionCallPN illegalFunction = ((ContainsInstructionSequence)i).checkFunctionNameAndLength(functions);
+				if(illegalFunction != null) {
+					return illegalFunction;
+				}
+			} else if (i instanceof ContainsEvaluable) {
+				FunctionCallPN illegalFunction = ((ContainsEvaluable)i).checkFunctionNameAndLength(functions);
+				if(illegalFunction != null) {
+					return illegalFunction;
+				}
 			}
 		}
 		return null;

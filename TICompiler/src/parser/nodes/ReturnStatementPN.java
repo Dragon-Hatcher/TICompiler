@@ -11,6 +11,10 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 	public ReturnStatementPN(Evaluable statement) {
 		this.statement = statement;
 	}
+	
+	public ReturnStatementPN() {
+		
+	}
 
 	@Override
 	public String toString() {
@@ -22,18 +26,6 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 		}
 		
 		return "(Return:\n" + String.join("\n", statementStrings)  + "\n)\n";
-	}
-
-	public boolean willReturn() {
-		return true;
-	}
-
-	public boolean hasIllegalBreak() {
-		return false;
-	}
-
-	public String hasIllegalDeclerationType(Set<String> types) {
-		return null;
 	}
 
 	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {

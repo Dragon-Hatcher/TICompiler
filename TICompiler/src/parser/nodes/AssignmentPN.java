@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
-public class AssignmentPN extends ParseNode implements Instruction {
+public class AssignmentPN extends ParseNode implements Instruction, ContainsEvaluable {
 
 	String varName = "";
 	String assignOp = "";
@@ -28,20 +28,11 @@ public class AssignmentPN extends ParseNode implements Instruction {
 		return "(Assign:\n" + "  (Name: " + varName + ")\n  (Type: " + assignOp + ")\n" + String.join("\n", assignStrings)  + "\n)\n";
 	}
 	
-	public boolean willReturn() {
-		return false;
-	}
-
-	public boolean hasIllegalBreak() {
-		return false;
-	}
-
-	public String hasIllegalDeclerationType(Set<String> types) {
-		return null;
-	}
-
 	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		return toAssign.checkFunctionNameAndLength(functions);
+		if(toAssign instanceof ContainsEvaluable) {
+			return ((ContainsEvaluable)toAssign).checkFunctionNameAndLength(functions);
+		}
+		return null;
 	}
 
 }
