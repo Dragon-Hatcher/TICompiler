@@ -116,5 +116,14 @@ public class IfPN extends ParseNode implements Instruction, ContainsInstructionS
 			elseInstructions.checkTypes(returnType);
 		}
 	}
+
+	@Override
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {
+		((ParseNode)condition).checkVariableUsedBeforeDeclared(vars);
+		instructions.checkVariableUsedBeforeDeclared(vars);
+		if(elseInstructions != null) {
+			elseInstructions.checkVariableUsedBeforeDeclared(vars);
+		}
+	}
 	
 }

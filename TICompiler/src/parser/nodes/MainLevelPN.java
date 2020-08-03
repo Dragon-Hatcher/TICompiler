@@ -2,10 +2,12 @@ package parser.nodes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import semanticAnalyzer.exceptions.IncorectFunctionReturnException;
+import toolkit.Copy;
 
 public class MainLevelPN extends ParseNode {
 
@@ -42,7 +44,7 @@ public class MainLevelPN extends ParseNode {
 		Map<String, String> emptyMap = new HashMap<String, String>();
 		main.setSubParseNodeVariables(emptyMap);
 		for(FunctionDeclerationPN func : functions) {
-			func.setSubParseNodeVariables(main.variables);
+			func.setSubParseNodeVariables(Copy.deepCopyMap(main.variables));
 		}
 	}
 	
@@ -88,6 +90,14 @@ public class MainLevelPN extends ParseNode {
 			if(i.shouldReturn() && !i.willReturn()) {
 				throw new IncorectFunctionReturnException("Function " + i.name + " must return.");
 			}
+		}
+	}
+
+	@Override
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {
+		main.checkVariableUsedBeforeDeclared(new HashSet<String>());
+		for(FunctionDeclerationPN i : functions) {
+			i.checkVariableUsedBeforeDeclared(Copy.deepCopySet(main.variables.keySet()));
 		}
 	}
 

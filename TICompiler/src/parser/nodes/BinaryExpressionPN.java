@@ -2,6 +2,7 @@ package parser.nodes;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 import langaugeConstructs.TokenValues;
 import parser.exceptions.*;
@@ -78,4 +79,9 @@ public class BinaryExpressionPN extends ParseNode implements Evaluable {
 		((ParseNode)right).checkTypes(returnType);
 	}
 
+	@Override
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {
+		((ParseNode)left).checkVariableUsedBeforeDeclared(vars);
+		((ParseNode)right).checkVariableUsedBeforeDeclared(vars);
+	}
 }

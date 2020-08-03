@@ -85,5 +85,12 @@ public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstr
 		
 		instructions.checkTypes(returnType);
 	}
+	
+	@Override
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {
+		((ParseNode)condition).checkVariableUsedBeforeDeclared(vars);
+		instructions.checkVariableUsedBeforeDeclared(vars);
+	}
+
 
 }

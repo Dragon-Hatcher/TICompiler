@@ -2,6 +2,7 @@ package parser.nodes;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class ParseNode {	
 	
@@ -13,6 +14,8 @@ public abstract class ParseNode {
 	
 	public abstract String toString();
 	
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {		
+	}
 	
 	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
 		this.variables = superVariables;

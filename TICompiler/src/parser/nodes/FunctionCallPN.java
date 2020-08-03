@@ -86,4 +86,11 @@ public class FunctionCallPN extends ParseNode implements Evaluable, Instruction 
 		}
 	}
 
+	@Override
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {
+		for(Evaluable p : params) {
+			((ParseNode)p).checkVariableUsedBeforeDeclared(vars);
+		}
+	}
+
 }

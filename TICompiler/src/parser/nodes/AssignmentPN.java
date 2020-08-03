@@ -6,6 +6,7 @@ import java.util.Set;
 
 import parser.exceptions.MismatchedTypeException;
 import parser.exceptions.UseOfUnknownVariableException;
+import parser.exceptions.VariableUsedBeforeDeclaredException;
 
 public class AssignmentPN extends ParseNode implements Instruction {
 
@@ -61,6 +62,14 @@ public class AssignmentPN extends ParseNode implements Instruction {
 		}
 		
 		((ParseNode)toAssign).checkTypes(returnType);
+	}
+	
+	@Override
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {
+		if(!vars.contains(varName)) {
+			throw new VariableUsedBeforeDeclaredException("Variable " + varName + " used before declared on " + lcText() + ".");
+		}
+		((ParseNode)toAssign).checkVariableUsedBeforeDeclared(vars);
 	}
 
 }

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import parser.exceptions.DuplicateVariableException;
 import semanticAnalyzer.exceptions.IllegalTypeDeclerationException;
+import toolkit.Copy;
 
 public class FunctionDeclerationPN extends ParseNode implements ContainsInstructionSequence {
 
@@ -89,6 +90,15 @@ public class FunctionDeclerationPN extends ParseNode implements ContainsInstruct
 	
 	public boolean shouldReturn() {
 		return !returnType.equals("");
+	}
+
+	@Override
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {
+		Set<String> newVars = Copy.deepCopySet(vars);
+		for(VariableDeclerationPN param : parameters) {
+			newVars.add(param.name);
+		}
+		instructions.checkVariableUsedBeforeDeclared(newVars);
 	}
 
 }

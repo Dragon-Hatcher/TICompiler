@@ -1,8 +1,10 @@
 package parser.nodes;
 
 import java.util.Map;
+import java.util.Set;
 
 import parser.exceptions.UseOfUnknownVariableException;
+import parser.exceptions.VariableUsedBeforeDeclaredException;
 
 public class VariableUsePN extends ParseNode implements Evaluable {
 
@@ -26,4 +28,10 @@ public class VariableUsePN extends ParseNode implements Evaluable {
 		}
 	}
 	
+	@Override
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {
+		if(!vars.contains(name)) {
+			throw new VariableUsedBeforeDeclaredException("Variable " + name + " used before declared on " + lcText() + ".");
+		}
+	}
 }

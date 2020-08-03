@@ -61,7 +61,7 @@ public class Parser {
 		if (!mainFound) {
 			throw new MissingMainException("There is no main.");
 		}
-
+		
 		return mainLevel;
 	}
 
@@ -172,8 +172,9 @@ public class Parser {
 					instructions.instructions.add(call);
 					eatToken(new Token(";", TokenType.SEPERATOR));
 				} else if (isAssign()) {
+					Token op = peek();
 					Evaluable toAssign = parseExpression(new Token(peek().text, TokenType.ASSIGNMENT), new Token(";", TokenType.SEPERATOR));
-					AssignmentPN assign = new AssignmentPN(id.text, peek().text, toAssign);
+					AssignmentPN assign = new AssignmentPN(id.text, op.text, toAssign);
 					assign.lineCol(line, col);
 					instructions.instructions.add(assign);
 				}

@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import intermediateLanguageGenerator.IntermediateLanguageGenerator;
 import lexer.Lexer;
 import lexer.Token;
 import lexer.UnableToLexCharacterException;
@@ -51,6 +52,13 @@ public class TICompiler {
 			semanticAnalyzer.analyze(mainLevelParseNode);
 		} catch (Exception e) {
 			e.printStackTrace();			
+		}
+		
+		IntermediateLanguageGenerator intermediateLanguageGenerator = new IntermediateLanguageGenerator();
+		try {
+			intermediateLanguageGenerator.generatorIL(mainLevelParseNode);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

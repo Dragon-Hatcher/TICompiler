@@ -8,6 +8,7 @@ import java.util.Set;
 import parser.exceptions.DuplicateVariableException;
 import semanticAnalyzer.exceptions.IllegalBreakException;
 import semanticAnalyzer.exceptions.IllegalTypeDeclerationException;
+import toolkit.Copy;
 
 public class InstructionSequencePN extends ParseNode implements Instruction, ContainsInstructionSequence {
 
@@ -103,4 +104,16 @@ public class InstructionSequencePN extends ParseNode implements Instruction, Con
 			((ParseNode)i).checkTypes(returnType);
 		}
 	}
+	
+	@Override
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {
+		Set<String> newVars = Copy.deepCopySet(vars);
+		for(Instruction i : instructions) {
+			((ParseNode)i).checkVariableUsedBeforeDeclared(newVars);
+			if(i instanceof VariableDeclerationPN) {
+				newVars.add(((VariableDeclerationPN)i).name);
+			}
+		}
+	}
+
 }

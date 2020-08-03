@@ -1,7 +1,9 @@
 package toolkit;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class Copy {
 
@@ -16,6 +18,14 @@ public class Copy {
 		}
 		
 		return newMap;
+	}
+	
+	public static Set<String> deepCopySet(Set<String> oldSet) {
+		Set<String> newSet = new HashSet<String>();
+		for(String val : oldSet) {
+			newSet.add(val);
+		}
+		return newSet;
 	}
 
 }

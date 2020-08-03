@@ -21,9 +21,11 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 	public String toString() {
 		ArrayList<String> statementStrings = new ArrayList<String>();
 
-		String[] sString = statement.toString().split("\n");
-		for (String i : sString) {
-			statementStrings.add("  " + i);
+		if (statement != null) {
+			String[] sString = statement.toString().split("\n");
+			for (String i : sString) {
+				statementStrings.add("  " + i);
+			}
 		}
 
 		return "(Return:\n" + String.join("\n", statementStrings) + "\n)\n";
@@ -31,8 +33,8 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 
 	@Override
 	public void checkFunctionNameAndLength() throws Exception {
-		if(statement != null) {
-			((ParseNode)statement).checkFunctionNameAndLength();
+		if (statement != null) {
+			((ParseNode) statement).checkFunctionNameAndLength();
 		}
 	}
 
@@ -61,9 +63,15 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 			}
 			((ParseNode) statement).checkTypes(returnType);
 		} else if (!returnType.equals("")) {
-			throw new MismatchedTypeException("Return  on " + lcText() + " should return type " + returnType
-					+ ". Instead it returns type void.");
+			throw new MismatchedTypeException(
+					"Return  on " + lcText() + " should return type " + returnType + ". Instead it returns type void.");
 		}
 	}
 
+	@Override
+	public void checkVariableUsedBeforeDeclared(Set<String> vars) throws Exception {
+		if (statement != null) {
+			((ParseNode) statement).checkVariableUsedBeforeDeclared(vars);
+		}
+	}
 }

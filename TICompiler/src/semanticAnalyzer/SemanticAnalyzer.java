@@ -28,6 +28,7 @@ public class SemanticAnalyzer {
 		mainLevel.hasIllegalDeclerationType(types);
 		mainLevel.checkFunctionNameAndLength();
 		mainLevel.checkTypes("");
+		mainLevel.checkVariableUsedBeforeDeclared(new HashSet<String>());
 		
 		// check functions return v/
 		// check break is in a loop  v/
@@ -38,7 +39,8 @@ public class SemanticAnalyzer {
 		// check voids don't return with value v/
 		// check types in assignment v/
 		// check types in function calls v/
-		// check that a variable isn't used before it is declared
+		// check that a variable isn't used before it is initialized v/ (Initialization now required)
+		// check that a variable isn't used before it is declared v/
 		
 	}
 	
