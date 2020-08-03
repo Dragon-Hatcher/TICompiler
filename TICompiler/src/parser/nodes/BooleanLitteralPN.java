@@ -25,4 +25,8 @@ public class BooleanLitteralPN extends ParseNode implements Evaluable {
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
 	}
+
+	public void checkTypes(String returnType) throws Exception {
+	}
+		
 }

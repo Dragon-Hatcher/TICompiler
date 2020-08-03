@@ -94,6 +94,7 @@ public class InstructionSequencePN extends ParseNode implements Instruction, Con
 
 	@Override
 	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
+		this.variables = superVariables;
 		findVariables();
 		for(Instruction i : instructions) {
 			((ParseNode)i).setSubParseNodeVariables(this.variables);
@@ -105,5 +106,11 @@ public class InstructionSequencePN extends ParseNode implements Instruction, Con
 		for(Instruction i : instructions) {
 			((ParseNode)i).setFunctions(functions);
 		}	
+	}
+
+	public void checkTypes(String returnType) throws Exception {
+		for(Instruction i : instructions) {
+			((ParseNode)i).checkTypes(returnType);
+		}
 	}
 }

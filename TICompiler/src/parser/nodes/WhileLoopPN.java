@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import parser.exceptions.MismatchedTypeException;
 import toolkit.Copy;
 
 public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstructionSequence, ContainsEvaluable {
@@ -79,6 +80,14 @@ public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstr
 		this.functions = functions;
 		((ParseNode)condition).setFunctions(functions);
 		instructions.setFunctions(functions);
+	}
+	
+	public void checkTypes(String returnType) throws Exception {
+		if(!condition.type().equals("bool")) {
+			throw new MismatchedTypeException("The condition of a while statement must be of type bool. Instead it is of type " + condition.type() + ".");
+		}
+		
+		instructions.checkTypes(returnType);
 	}
 
 }

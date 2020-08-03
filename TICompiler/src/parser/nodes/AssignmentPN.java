@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import parser.exceptions.MismatchedTypeException;
+import parser.exceptions.UseOfUnknownVariableException;
+
 public class AssignmentPN extends ParseNode implements Instruction, ContainsEvaluable {
 
 	String varName = "";
@@ -43,6 +46,20 @@ public class AssignmentPN extends ParseNode implements Instruction, ContainsEval
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
 		((ParseNode)toAssign).setFunctions(functions);
+	}
+
+	public void checkTypes(String returnType) throws Exception {
+		if(!variables.containsKey(varName)) {
+			System.out.println(variables);
+			throw new UseOfUnknownVariableException("Use of unknown variable " + varName + ".");
+		}
+		
+		String varType = variables.get(varName);
+		if(!varType.equals(toAssign.type())) {
+			throw new MismatchedTypeException("Variable " + varName + " is of type " + varType + " but you attempted to assign it to type " + toAssign.type() + ".");
+		}
+		
+		((ParseNode)toAssign).checkTypes(returnType);
 	}
 
 }

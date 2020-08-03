@@ -70,6 +70,7 @@ public class SemanticAnalyzer {
 
 		mainLevel.setSubParseNodeVariables(new HashMap<String, String>());
 		mainLevel.setFunctions(functions);
+		mainLevel.checkTypes("");
 		
 		// check functions return v/
 		// check break is in a loop  v/

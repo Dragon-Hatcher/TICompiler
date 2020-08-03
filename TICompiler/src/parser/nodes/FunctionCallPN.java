@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import parser.exceptions.MismatchedTypeException;
 import parser.exceptions.UseOfUnknownFunctionException;
 
 public class FunctionCallPN extends ParseNode implements Evaluable, Instruction, ContainsEvaluable {
@@ -76,4 +77,19 @@ public class FunctionCallPN extends ParseNode implements Evaluable, Instruction,
 			throw new UseOfUnknownFunctionException("Use of unknown function " + functionName + ".");
 		}
 	}
+	
+	public void checkTypes(String returnType) throws Exception {
+		if(!functions.containsKey(functionName)) {
+			throw new UseOfUnknownFunctionException("Use of unknown function " + functionName + ".");			
+		}
+		FunctionDeclerationPN func = functions.get(functionName);
+		
+		for(int i = 0; i < params.size(); i++) {
+			if(!func.parameters.get(i).type.equals(params.get(i).type())) {
+				throw new MismatchedTypeException("Parameter " + i + " of function " + functionName + " is of type " + func.parameters.get(i).type + " but it was called with type " + params.get(i).type() + ".");
+			}
+			((ParseNode)params.get(i)).checkTypes(returnType);
+		}
+	}
+
 }

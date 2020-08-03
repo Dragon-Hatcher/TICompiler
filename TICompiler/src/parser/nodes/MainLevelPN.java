@@ -48,4 +48,11 @@ public class MainLevelPN extends ParseNode {
 			func.setFunctions(functions);
 		}
 	}
+
+	public void checkTypes(String returnType) throws Exception {
+		main.checkTypes("");
+		for(FunctionDeclerationPN func : functions) {
+			func.checkTypes(main.functions.get(func.name).returnType);
+		}
+	}
 }

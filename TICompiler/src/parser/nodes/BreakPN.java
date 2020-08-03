@@ -21,4 +21,8 @@ public class BreakPN extends ParseNode implements Instruction {
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
 	}
+	
+	public void checkTypes(String returnType) throws Exception {
+	}
+
 }

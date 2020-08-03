@@ -31,4 +31,6 @@ public class NumLitteralPN extends ParseNode implements Evaluable {
 		this.functions = functions;
 	}
 
+	public void checkTypes(String returnType) throws Exception {
+	}
 }

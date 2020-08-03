@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import parser.exceptions.MismatchedTypeException;
 import toolkit.Copy;
 
 public class IfPN extends ParseNode implements Instruction, ContainsInstructionSequence, ContainsEvaluable {
@@ -59,17 +60,24 @@ public class IfPN extends ParseNode implements Instruction, ContainsInstructionS
 	}
 	
 	public boolean hasIllegalBreak() {
-		return instructions.hasIllegalBreak() || elseInstructions.hasIllegalBreak();
+		if (elseInstructions != null) {
+			return instructions.hasIllegalBreak() || elseInstructions.hasIllegalBreak();
+		} else {
+			return instructions.hasIllegalBreak();			
+		}
 	}
 
 	public VariableDeclerationPN hasIllegalDeclerationType(Set<String> types) {
 		VariableDeclerationPN ifBody = instructions.hasIllegalDeclerationType(types);
-		VariableDeclerationPN elseBody = elseInstructions.hasIllegalDeclerationType(types);
-
 		if(ifBody != null) {
 			return ifBody;
-		} else {
+		}
+		
+		if(elseInstructions != null) {
+			VariableDeclerationPN elseBody = elseInstructions.hasIllegalDeclerationType(types);
 			return elseBody;
+		} else {
+			return null;
 		}
 
 	}
@@ -81,14 +89,17 @@ public class IfPN extends ParseNode implements Instruction, ContainsInstructionS
 			condFC = ((ContainsEvaluable)condition).checkFunctionNameAndLength(functions);
 		}
 		FunctionCallPN ifFC = instructions.checkFunctionNameAndLength(functions);
-		FunctionCallPN elseFC = elseInstructions.checkFunctionNameAndLength(functions);
-		
 		if(condFC != null) {
 			return condFC;
 		} else if(ifFC != null) {
 			return ifFC;
-		} else {
+		}
+		
+		if(elseInstructions != null) {
+			FunctionCallPN elseFC = elseInstructions.checkFunctionNameAndLength(functions);
 			return elseFC;
+		} else {
+			return null;
 		}
 	}
 
@@ -97,13 +108,29 @@ public class IfPN extends ParseNode implements Instruction, ContainsInstructionS
 		this.variables = superVariables;
 		((ParseNode)condition).setSubParseNodeVariables(superVariables);
 		instructions.setSubParseNodeVariables(Copy.deepCopyMap(superVariables));
-		elseInstructions.setSubParseNodeVariables(Copy.deepCopyMap(superVariables));
+		if(elseInstructions != null) {
+			elseInstructions.setSubParseNodeVariables(Copy.deepCopyMap(superVariables));
+		}
 	}
 
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
 		((ParseNode)condition).setFunctions(functions);
 		((ParseNode)instructions).setFunctions(functions);
-		((ParseNode)elseInstructions).setFunctions(functions);
+		if(elseInstructions != null) {
+			((ParseNode)elseInstructions).setFunctions(functions);
+		}
 	}
+
+	public void checkTypes(String returnType) throws Exception {
+		if(!condition.type().equals("bool")) {
+			throw new MismatchedTypeException("The condition of an if statement must be of type bool. Instead it is of type " + condition.type() + ".");
+		}
+		
+		instructions.checkTypes(returnType);
+		if(elseInstructions != null) {
+			elseInstructions.checkTypes(returnType);
+		}
+	}
+	
 }

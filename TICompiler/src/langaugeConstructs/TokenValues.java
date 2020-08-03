@@ -51,4 +51,19 @@ public class TokenValues {
 			Map.entry("||", Set.of("bool"))
 	);
 	
+	public static final Map<String, Map<String, String>> opReturnTypes = Map.ofEntries(
+			Map.entry("+", Map.ofEntries(   Map.entry("int", "int"),Map.entry("float", "float"))),
+			Map.entry("-", Map.ofEntries(   Map.entry("int", "int"),Map.entry("float", "float"))),
+			Map.entry("*", Map.ofEntries(   Map.entry("int", "int"),Map.entry("float", "float"))),
+			Map.entry("/", Map.ofEntries(   Map.entry("int", "int"),Map.entry("float", "float"))),
+			Map.entry("<", Map.ofEntries(   Map.entry("int", "bool"),Map.entry("float", "bool"),Map.entry("char", "bool"))),
+			Map.entry("<=", Map.ofEntries(   Map.entry("int", "bool"),Map.entry("float", "bool"),Map.entry("char", "bool"))),
+			Map.entry(">", Map.ofEntries(   Map.entry("int", "bool"),Map.entry("float", "bool"),Map.entry("char", "bool"))),
+			Map.entry(">=", Map.ofEntries(   Map.entry("int", "bool"),Map.entry("float", "bool"),Map.entry("char", "bool"))),
+			Map.entry("==", Map.ofEntries(   Map.entry("int", "bool"),Map.entry("float", "bool"),Map.entry("char", "bool"),Map.entry("bool", "bool"))),
+			Map.entry("&&", Map.ofEntries(   Map.entry("bool", "bool"))),
+			Map.entry("||", Map.ofEntries(   Map.entry("bool", "bool")))
+			);
+	
+	
 }

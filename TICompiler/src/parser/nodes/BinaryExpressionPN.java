@@ -67,7 +67,7 @@ public class BinaryExpressionPN extends ParseNode implements Evaluable, Contains
 			throw new OperatorInvalidOnTypeException("Operator " + op + " invalid on type " + leftType + ".");
 		}
 		
-		return leftType;
+		return TokenValues.opReturnTypes.get(op).get(leftType);
 	}
 
 	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
@@ -82,5 +82,9 @@ public class BinaryExpressionPN extends ParseNode implements Evaluable, Contains
 		((ParseNode)right).setFunctions(functions);
 	}
 
+	public void checkTypes(String returnType) throws Exception {
+		((ParseNode)left).checkTypes(returnType);
+		((ParseNode)right).checkTypes(returnType);
+	}
 
 }
