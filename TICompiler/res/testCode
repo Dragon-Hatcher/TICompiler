@@ -1,9 +1,8 @@
-func add(int x, int y, int z) -> int {
-	test();
-	return x + y + z;
+func add(int intX, int y, int z) -> int {
+	return x + intX + y + z;
 }
 
-func test() {
+func test() -> void {
 	return;
 }
 
@@ -15,12 +14,15 @@ main {
 	
 	//check if x is equals to 2 if so add 3.156 and 5 to it
 	if(x == 2 && true) {
-		var y:int = 3.156;
+		var y:int = 33;
 		x = add(x, y, 3);
 	} else if (x > 10) {
 		x -= 10;
 	} else {
 		x -= 3;
+	}
+	
+	if(true) {
 	}
 	
 	while(x < 100) {

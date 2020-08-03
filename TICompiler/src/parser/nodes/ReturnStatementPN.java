@@ -15,7 +15,6 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 	}
 
 	public ReturnStatementPN() {
-
 	}
 
 	@Override
@@ -52,7 +51,11 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 						+ ". Instead it returns type " + statement.type() + ".");
 			}
 			((ParseNode) statement).checkTypes(returnType);
+		} else if (!returnType.equals("")) {
+			throw new MismatchedTypeException("Return should return type " + returnType
+					+ ". Instead it returns type void.");
 		}
+
 	}
 
 }

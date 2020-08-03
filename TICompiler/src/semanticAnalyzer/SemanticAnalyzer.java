@@ -78,7 +78,10 @@ public class SemanticAnalyzer {
 		// check func param types v/
 		// check function call exists v/
 		// check function call length v/
-		// check voids don't return with value
+		// check voids don't return with value v/
+		// check types in assignment v/
+		// check types in function calls v/
+		// check that a variable isn't used before it is declared
 		
 	}
 	

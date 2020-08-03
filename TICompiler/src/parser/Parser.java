@@ -103,8 +103,10 @@ public class Parser {
 
 		if (isSep("->")) {
 			pop();
-
-			if (isId()) {
+			
+			if (isKw("void")) {
+				pop();
+			} else if (isId()) {
 				function.returnType = pop().text;
 			} else {
 				throw new UnexpectedTokenException(
