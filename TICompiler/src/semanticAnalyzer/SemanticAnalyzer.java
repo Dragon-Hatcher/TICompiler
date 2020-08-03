@@ -82,6 +82,7 @@ public class SemanticAnalyzer {
 		// check types in assignment v/
 		// check types in function calls v/
 		// check that a variable isn't used before it is declared
+		//
 		
 	}
 	
