@@ -29,7 +29,7 @@ public class VariableUsePN extends ParseNode implements Evaluable {
 		if(variables.containsKey(name)) {
 			return variables.get(name);
 		} else {
-			throw new UseOfUnknownVariableException("Use of unknown variable " + name + ".");
+			throw new UseOfUnknownVariableException("Use of unknown variable " + name + " on " + lcText() + ".");
 		}
 	}
 	

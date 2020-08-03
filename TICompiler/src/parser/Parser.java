@@ -27,21 +27,29 @@ public class Parser {
 
 	private MainLevelPN parseMainLevel() throws Exception {
 		MainLevelPN mainLevel = new MainLevelPN();
-
+		mainLevel.lineCol(peek().line, peek().col);
+		
 		boolean mainFound = false;
 
 		while (!eof()) {
 			if (isKw("func")) {
+				int line = peek().line;
+				int col = peek().col;
 				pop();
-				mainLevel.functions.add(parseFunctionDecleration());
+				FunctionDeclerationPN lastFunc = parseFunctionDecleration();
+				lastFunc.lineCol(line, col);
+				mainLevel.functions.add(lastFunc);
 			} else if (isKw("main")) {
-				Token next = pop();
+				int line = peek().line;
+				int col = peek().col;
+				pop();
 				if (!mainFound) {
 					mainLevel.main = parseInstructionSequence("{", "}");
+					mainLevel.main.lineCol(line, col);
 					mainFound = true;
 				} else {
 					throw new DuplicateMainException(
-							"Only one main function is allowed. A second was found at " + next.lcText() + ".");
+							"Only one main function is allowed. One was found at " + mainLevel.main.lcText() + ". A second was found at line " + line + ", col " + col + ".");
 				}
 			} else {
 				Token next = pop();
@@ -71,6 +79,9 @@ public class Parser {
 
 		if (!isSep(")")) {
 			while (true) {
+				int line = peek().line;
+				int col = peek().col;
+
 				String type;
 				if (isId()) {
 					type = pop().text;
@@ -88,6 +99,7 @@ public class Parser {
 				}
 
 				VariableDeclerationPN param = new VariableDeclerationPN(type, varName);
+				param.lineCol(line, col);
 				function.parameters.add(param);
 
 				try {
@@ -120,37 +132,50 @@ public class Parser {
 	}
 
 	private ReturnStatementPN parseReturnStatement() throws Exception {
+		int line = peek().line;
+		int col = peek().col;
 		eatToken(new Token("return", TokenType.KEYWORD));
 		if(isSep(";")) {
 			eatToken(new Token(";", TokenType.SEPERATOR));
+			ReturnStatementPN ret = new ReturnStatementPN();
+			ret.lineCol(line, col);
 			return new ReturnStatementPN();
 		} else {
-			return new ReturnStatementPN(
-				parseExpression(new Token(";", TokenType.SEPERATOR)));
+			ReturnStatementPN ret = new ReturnStatementPN(parseExpression(new Token(";", TokenType.SEPERATOR)));
+			ret.lineCol(line, col);
+			return ret;
 		}
 	}
 
 	private InstructionSequencePN parseInstructionSequence(String start, String end) throws Exception {
+		int lineS = peek().line;
+		int colS = peek().col;
 		try {
 			eatToken(new Token(start, TokenType.SEPERATOR));
 		} catch (Exception e) {
 			throw new IllegalInstructionSequenceStartException(
-					"Instruction sequences must start with " + start + ". The sequence on line " + peek().line
-							+ ", col " + peek().col + " starts with " + peek().text + ".");
+					"The instruction sequence on " + peek().lcText() + " must start with " + start + ". Instead it starts with " + peek() + ".");
 		}
 
 		InstructionSequencePN instructions = new InstructionSequencePN();
-
+		instructions.lineCol(lineS, colS);
+		
 		while (!isSep(end)) {
 
 			if (isId()) {
+				int line = peek().line;
+				int col = peek().col;
 				Token id = pop();
 				if (isSep("(")) {
-					instructions.instructions.add(parseFunctionCall(id.text));
+					FunctionCallPN call = parseFunctionCall(id.text);
+					call.lineCol(line, col);
+					instructions.instructions.add(call);
 					eatToken(new Token(";", TokenType.SEPERATOR));
 				} else if (isAssign()) {
-					instructions.instructions.add(new AssignmentPN(id.text, peek().text, parseExpression(
-							new Token(peek().text, TokenType.ASSIGNMENT), new Token(";", TokenType.SEPERATOR))));
+					Evaluable toAssign = parseExpression(new Token(peek().text, TokenType.ASSIGNMENT), new Token(";", TokenType.SEPERATOR));
+					AssignmentPN assign = new AssignmentPN(id.text, peek().text, toAssign);
+					assign.lineCol(line, col);
+					instructions.instructions.add(assign);
 				}
 			} else if (isKw("var")) {
 				instructions.instructions.addAll(parseVarDecleration(new Token(";", TokenType.SEPERATOR)));
@@ -159,14 +184,12 @@ public class Parser {
 			} else if (isKw("return")) {
 				instructions.instructions.add(parseReturnStatement());
 			} else if (isKw("while")) {
-				pop();
-				Evaluable expression = parseExpression(new Token("(", TokenType.SEPERATOR),
-						new Token(")", TokenType.SEPERATOR));
-				InstructionSequencePN ifInstructions = parseInstructionSequence("{", "}");
-				instructions.instructions.add(new WhileLoopPN(expression, ifInstructions));
+				instructions.instructions.add(parseWhile());
 			} else if (isKw("break")) {
-				instructions.instructions.add(new BreakPN());
-				pop();
+				BreakPN breakPN = new BreakPN();
+				breakPN.lineCol(peek().line, peek().col);
+				instructions.instructions.add(breakPN);
+				eatToken(new Token("break", TokenType.KEYWORD));
 				eatToken(new Token(";", TokenType.SEPERATOR));
 			} else {
 				throw new UnexpectedTokenException("Unexpected token " + peek() + " on " + peek().lcText());
@@ -182,14 +205,30 @@ public class Parser {
 		return instructions;
 	}
 
+	private WhileLoopPN parseWhile() throws Exception {
+		int line = peek().line;
+		int col = peek().col;
+		eatToken(new Token("while", TokenType.KEYWORD));
+		Evaluable expression = parseExpression(new Token("(", TokenType.SEPERATOR),
+				new Token(")", TokenType.SEPERATOR));
+		InstructionSequencePN whileInstructions = parseInstructionSequence("{", "}");
+		WhileLoopPN whileLoop = new WhileLoopPN(expression, whileInstructions);
+		whileLoop.lineCol(line, col);
+		return whileLoop;
+	}
+	
 	private IfPN parseIf() throws Exception {
-		pop();
+		int line = peek().line;
+		int col = peek().col;
+		eatToken(new Token("if", TokenType.KEYWORD));
 		Evaluable expression = parseExpression(new Token("(", TokenType.SEPERATOR),
 				new Token(")", TokenType.SEPERATOR));
 		InstructionSequencePN ifInstructions = parseInstructionSequence("{", "}");
 
 		if (!isKw("else")) {
-			return new IfPN(expression, ifInstructions, null);
+			IfPN ifPN = new IfPN(expression, ifInstructions, null);
+			ifPN.lineCol(line, col);
+			return ifPN;
 		} else {
 			pop();
 			InstructionSequencePN elseBody = new InstructionSequencePN();
@@ -200,11 +239,15 @@ public class Parser {
 				elseBody = parseInstructionSequence("{", "}");
 			}
 
-			return new IfPN(expression, ifInstructions, elseBody);
+			IfPN ifPN = new IfPN(expression, ifInstructions, elseBody);
+			ifPN.lineCol(line, col);
+			return ifPN;
 		}
 	}
 
 	private ArrayList<Instruction> parseVarDecleration(Token end) throws Exception {
+		int line = peek().line;
+		int col = peek().col;
 		eatToken(new Token("var", TokenType.KEYWORD));
 
 		String name;
@@ -222,23 +265,26 @@ public class Parser {
 			type = pop().text;
 		} else {
 			throw new UnexpectedTokenException(
-					"Expected identifier after var name on " + peek().lcText() + ", but instead found " + peek() + ".");
+					"Expected type identifier after var name on " + peek().lcText() + ", but instead found " + peek() + ".");
 		}
 
-		AssignmentPN possibleAssign = null;
+		AssignmentPN assign = null;
 		if (isAssign("=")) {
 			Evaluable expression = parseExpression(new Token("=", TokenType.ASSIGNMENT),
 					new Token(";", TokenType.SEPERATOR));
-			possibleAssign = new AssignmentPN(name, "=", expression);
+			assign = new AssignmentPN(name, "=", expression);
+			assign.lineCol(line, col);
+		} else {
+			throw new UnexpectedTokenException(
+					"Expected = after var type on " + peek().lcText() + ", but instead found " + peek() + ".");
 		}
 
 		VariableDeclerationPN decleration = new VariableDeclerationPN(type, name);
-
+		decleration.lineCol(line, col);		
+		
 		ArrayList<Instruction> ret = new ArrayList<Instruction>();
 		ret.add(decleration);
-		if (possibleAssign != null) {
-			ret.add(possibleAssign);
-		}
+		ret.add(assign);
 		return ret;
 	}
 
@@ -250,12 +296,19 @@ public class Parser {
 					+ start + ". Instead is starts with " + peek() + ".");
 		}
 
-		return parseExpression(end);
+		int line = peek().line;
+		int col = peek().col;
+		Evaluable ret = parseExpression(end);
+		((ParseNode)ret).lineCol(line, col);
+		return ret;
 	}
 
 	private Evaluable parseExpression(Token end) throws Exception {
+		int line = peek().line;
+		int col = peek().col;
 		Evaluable ret = parseExpression();
-
+		((ParseNode)ret).lineCol(line, col);
+		
 		try {
 			eatToken(end);
 		} catch (Exception e) {
@@ -267,35 +320,53 @@ public class Parser {
 	}
 
 	private Evaluable parseExpression() throws Exception {
-		return parseBinary(parseEvaluableAtom(), 0);
+		int line = peek().line;
+		int col = peek().col;
+		Evaluable ret = parseBinary(parseEvaluableAtom(), 0);
+		((ParseNode)ret).lineCol(line, col);
+		return ret;
 	}
 
 	private Evaluable parseBinary(Evaluable left, int myPres) throws Exception {
 		if (isOp()) {
 			int hisPres = TokenValues.operatorPrecedence.get(peek().text);
 			if (hisPres > myPres) {
+				int line = peek().line;
+				int col = peek().col;
 				Token op = pop();
 				Evaluable right = parseBinary(parseEvaluableAtom(), hisPres);
 				BinaryExpressionPN binary = new BinaryExpressionPN(left, right, op.text);
-				return parseBinary(binary, myPres);
+				binary.lineCol(line, col);
+				Evaluable ret = parseBinary(binary, myPres);
+				return ret;
 			}
 		}
 		return left;
 	}
 
 	private Evaluable parseEvaluableAtom() throws Exception {
+		int line = peek().line;
+		int col = peek().col;
 		if (isNumLit()) {
-			return new NumLitteralPN(pop().text);
+			NumLitteralPN ret =  new NumLitteralPN(pop().text);
+			ret.lineCol(line, col);
+			return ret;
 		} else if (isKw("true") || isKw("false")) {
-			return new BooleanLitteralPN(pop().text);
+			BooleanLitteralPN ret = new BooleanLitteralPN(pop().text);
+			ret.lineCol(line, col);
+			return ret;
 		} else if (isSep("(")) {
 			return parseExpression(new Token("(", TokenType.SEPERATOR), new Token(")", TokenType.SEPERATOR));
 		} else if (isId()) {
 			String name = pop().text;
 			if (isSep("(")) {
-				return parseFunctionCall(name);
+				FunctionCallPN ret = parseFunctionCall(name);
+				ret.lineCol(line, col);
+				return ret;
 			} else {
-				return new VariableUsePN(name);
+				VariableUsePN ret = new VariableUsePN(name);
+				ret.lineCol(line, col);
+				return ret;
 			}
 		} else {
 			throw new IllegalTokenInExpressionException(

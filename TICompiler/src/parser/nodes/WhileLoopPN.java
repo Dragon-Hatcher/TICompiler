@@ -84,7 +84,7 @@ public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstr
 	
 	public void checkTypes(String returnType) throws Exception {
 		if(!condition.type().equals("bool")) {
-			throw new MismatchedTypeException("The condition of a while statement must be of type bool. Instead it is of type " + condition.type() + ".");
+			throw new MismatchedTypeException("The condition of a while statement must be of type bool. Instead it is of type " + condition.type() + " on " + ((ParseNode)condition).lcText() + ".");
 		}
 		
 		instructions.checkTypes(returnType);

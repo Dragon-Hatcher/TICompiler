@@ -124,7 +124,7 @@ public class IfPN extends ParseNode implements Instruction, ContainsInstructionS
 
 	public void checkTypes(String returnType) throws Exception {
 		if(!condition.type().equals("bool")) {
-			throw new MismatchedTypeException("The condition of an if statement must be of type bool. Instead it is of type " + condition.type() + ".");
+			throw new MismatchedTypeException("The condition of an if statement must be of type bool. Instead it is of type " + condition.type() + " on " + ((ParseNode)condition).lcText() + ".");
 		}
 		
 		instructions.checkTypes(returnType);

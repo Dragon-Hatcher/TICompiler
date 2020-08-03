@@ -60,11 +60,11 @@ public class BinaryExpressionPN extends ParseNode implements Evaluable, Contains
 		String rightType = right.type();
 		
 		if(!leftType.equals(rightType)) {
-			throw new MismatchedTypeException("Mismatched types " + leftType + " and " + rightType + ".");
+			throw new MismatchedTypeException("Mismatched types " + leftType + " and " + rightType + " in expression on " + lcText() + ".");
 		}
 		
 		if(!TokenValues.opTypes.get(op).contains(leftType)) {
-			throw new OperatorInvalidOnTypeException("Operator " + op + " invalid on type " + leftType + ".");
+			throw new OperatorInvalidOnTypeException("Operator " + op + " invalid on type " + leftType + " on " + lcText() + ".");
 		}
 		
 		return TokenValues.opReturnTypes.get(op).get(leftType);

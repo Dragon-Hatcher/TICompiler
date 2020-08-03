@@ -36,7 +36,7 @@ public class FunctionDeclerationPN extends ParseNode {
 	public void findVariables() throws Exception {
 		for (VariableDeclerationPN i : parameters) {
 			if (variables.containsKey(i.name)) {
-				throw new DuplicateVariableException("Duplicate variable name " + i.name + ".");
+				throw new DuplicateVariableException("Duplicate variable name " + i.name + " on " + lcText() + ".");
 			}
 			variables.put(i.name, i.type);
 		}

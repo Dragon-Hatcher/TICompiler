@@ -85,7 +85,7 @@ public class InstructionSequencePN extends ParseNode implements Instruction, Con
 			if(i instanceof VariableDeclerationPN) {
 				VariableDeclerationPN iVD = (VariableDeclerationPN)i;
 				if(variables.containsKey(iVD.name)) {
-					throw new DuplicateVariableException("Duplicate variable name " + iVD.name + ".");
+					throw new DuplicateVariableException("Duplicate variable name " + iVD.name + " on " + lcText() + ".");
 				}
 				variables.put(iVD.name, iVD.type);
 			}

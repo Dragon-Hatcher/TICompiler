@@ -47,12 +47,12 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 	public void checkTypes(String returnType) throws Exception {
 		if (statement != null) {
 			if (!returnType.equals(statement.type())) {
-				throw new MismatchedTypeException("Return should return type " + returnType
+				throw new MismatchedTypeException("Return on " + lcText() + " should return type " + returnType
 						+ ". Instead it returns type " + statement.type() + ".");
 			}
 			((ParseNode) statement).checkTypes(returnType);
 		} else if (!returnType.equals("")) {
-			throw new MismatchedTypeException("Return should return type " + returnType
+			throw new MismatchedTypeException("Return  on " + lcText() + " should return type " + returnType
 					+ ". Instead it returns type void.");
 		}
 

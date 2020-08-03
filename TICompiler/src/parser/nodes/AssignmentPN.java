@@ -51,12 +51,12 @@ public class AssignmentPN extends ParseNode implements Instruction, ContainsEval
 	public void checkTypes(String returnType) throws Exception {
 		if(!variables.containsKey(varName)) {
 			System.out.println(variables);
-			throw new UseOfUnknownVariableException("Use of unknown variable " + varName + ".");
+			throw new UseOfUnknownVariableException("Use of unknown variable " + varName + " on " + lcText() + ".");
 		}
 		
 		String varType = variables.get(varName);
 		if(!varType.equals(toAssign.type())) {
-			throw new MismatchedTypeException("Variable " + varName + " is of type " + varType + " but you attempted to assign it to type " + toAssign.type() + ".");
+			throw new MismatchedTypeException("Variable " + varName + " is of type " + varType + " but you attempted to assign it to type " + toAssign.type() + " on " + lcText() + ".");
 		}
 		
 		((ParseNode)toAssign).checkTypes(returnType);

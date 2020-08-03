@@ -32,18 +32,22 @@ public class Lexer {
 			String c2 = peekMulti(2);
 			
 			if(c2.matches(matchCommentStart)) {
+				int lineS = line;
+				int colS = col;
 				Token t = new Token(readWhileRegex(matchCommentCharacter), TokenType.COMMENT);
-				t.lineCol(line, col);
+				t.lineCol(lineS, colS);
 				tokens.add(t);
 			} else if (c1.matches(matchKeywordsIdentifiers)) {
+				int lineS = line;
+				int colS = col;
 				String kwid = readWhileRegex(matchKeywordsIdentifiers);
 				if(TokenValues.keywords.contains(kwid)) {
 					Token t = new Token(kwid, TokenType.KEYWORD);
-					t.lineCol(line, col);
+					t.lineCol(lineS, colS);
 					tokens.add(t);
 				} else {
 					Token t = new Token(kwid, TokenType.IDENTIFIER);
-					t.lineCol(line, col);
+					t.lineCol(lineS, colS);
 					tokens.add(t);
 				}
 			} else if (c1.matches(matchSeperators)) {
@@ -62,21 +66,25 @@ public class Lexer {
 				pop();
 				pop();				
 			} else if (c1.matches(matchOperators)) {
+				int lineS = line;
+				int colS = col;
 				String possibleOp = readWhileRegex(matchOperators);
 				if(TokenValues.assignments.contains(possibleOp)) {
 					Token t = new Token(possibleOp, TokenType.ASSIGNMENT);
-					t.lineCol(line, col);
+					t.lineCol(lineS, colS);
 					tokens.add(t);
 				} else if(TokenValues.operators.contains(possibleOp)) {
 					Token t = new Token(possibleOp, TokenType.OPERATOR);
-					t.lineCol(line, col);
+					t.lineCol(lineS, colS);
 					tokens.add(t);
 				} else {
 					throw new UnknownOperatorException("Unknown operator \"" + possibleOp + "\" at line " + line + ", column " + col);
 				}
 			} else if(c1.matches(matchNumbers)) {
+				int lineS = line;
+				int colS = col;
 				Token t = new Token(readNumber(), TokenType.LITERAL_NUM);
-				t.lineCol(line, col);
+				t.lineCol(lineS, colS);
 				tokens.add(t);
 			} else if(c1.matches(matchWhiteSpace)) {
 				pop();
