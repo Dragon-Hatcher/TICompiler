@@ -7,7 +7,7 @@ import java.util.Set;
 import parser.exceptions.MismatchedTypeException;
 import parser.exceptions.UseOfUnknownVariableException;
 
-public class AssignmentPN extends ParseNode implements Instruction, ContainsEvaluable {
+public class AssignmentPN extends ParseNode implements Instruction {
 
 	String varName = "";
 	String assignOp = "";
@@ -31,23 +31,24 @@ public class AssignmentPN extends ParseNode implements Instruction, ContainsEval
 		return "(Assign:\n" + "  (Name: " + varName + ")\n  (Type: " + assignOp + ")\n" + String.join("\n", assignStrings)  + "\n)\n";
 	}
 	
-	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		if(toAssign instanceof ContainsEvaluable) {
-			return ((ContainsEvaluable)toAssign).checkFunctionNameAndLength(functions);
-		}
-		return null;
+	@Override
+	public void checkFunctionNameAndLength() throws Exception {
+		((ParseNode)toAssign).checkFunctionNameAndLength();
 	}
 
+	@Override
 	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
 		this.variables = superVariables;
 		((ParseNode)toAssign).setSubParseNodeVariables(superVariables);
 	}
 
+	@Override
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
 		((ParseNode)toAssign).setFunctions(functions);
 	}
 
+	@Override
 	public void checkTypes(String returnType) throws Exception {
 		if(!variables.containsKey(varName)) {
 			System.out.println(variables);

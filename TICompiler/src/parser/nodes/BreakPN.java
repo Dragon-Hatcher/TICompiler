@@ -10,19 +10,4 @@ public class BreakPN extends ParseNode implements Instruction {
 		return "(Break)";
 	}
 
-	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		return null;
-	}
-	
-	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
-		this.variables = superVariables;
-	}
-
-	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
-		this.functions = functions;
-	}
-	
-	public void checkTypes(String returnType) throws Exception {
-	}
-
 }

@@ -7,7 +7,7 @@ import java.util.Set;
 import parser.exceptions.MismatchedTypeException;
 import toolkit.Copy;
 
-public class IfPN extends ParseNode implements Instruction, ContainsInstructionSequence, ContainsEvaluable {
+public class IfPN extends ParseNode implements Instruction, ContainsInstructionSequence {
 	
 	Evaluable condition = null;
 	InstructionSequencePN instructions = new InstructionSequencePN();
@@ -55,51 +55,33 @@ public class IfPN extends ParseNode implements Instruction, ContainsInstructionS
 		")\n";
 	}
 
+	@Override
 	public boolean willReturn() {
 		return elseInstructions != null && elseInstructions.willReturn() && instructions.willReturn();
 	}
 	
-	public boolean hasIllegalBreak() {
+	@Override
+	public void hasIllegalBreak() throws Exception {
+		instructions.hasIllegalBreak();
 		if (elseInstructions != null) {
-			return instructions.hasIllegalBreak() || elseInstructions.hasIllegalBreak();
-		} else {
-			return instructions.hasIllegalBreak();			
+			elseInstructions.hasIllegalBreak();
 		}
-	}
-
-	public VariableDeclerationPN hasIllegalDeclerationType(Set<String> types) {
-		VariableDeclerationPN ifBody = instructions.hasIllegalDeclerationType(types);
-		if(ifBody != null) {
-			return ifBody;
-		}
-		
-		if(elseInstructions != null) {
-			VariableDeclerationPN elseBody = elseInstructions.hasIllegalDeclerationType(types);
-			return elseBody;
-		} else {
-			return null;
-		}
-
 	}
 
 	@Override
-	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		FunctionCallPN condFC = null;
-		if(condition instanceof ContainsEvaluable) {
-			condFC = ((ContainsEvaluable)condition).checkFunctionNameAndLength(functions);
-		}
-		FunctionCallPN ifFC = instructions.checkFunctionNameAndLength(functions);
-		if(condFC != null) {
-			return condFC;
-		} else if(ifFC != null) {
-			return ifFC;
-		}
-		
+	public void hasIllegalDeclerationType(Set<String> types) throws Exception {
+		instructions.hasIllegalDeclerationType(types);
 		if(elseInstructions != null) {
-			FunctionCallPN elseFC = elseInstructions.checkFunctionNameAndLength(functions);
-			return elseFC;
-		} else {
-			return null;
+			elseInstructions.hasIllegalDeclerationType(types);
+		}
+	}
+
+	@Override
+	public void checkFunctionNameAndLength() throws Exception {
+		((ParseNode)condition).checkFunctionNameAndLength();
+		instructions.checkFunctionNameAndLength();
+		if(elseInstructions != null) {
+			elseInstructions.checkFunctionNameAndLength();
 		}
 	}
 
@@ -113,6 +95,7 @@ public class IfPN extends ParseNode implements Instruction, ContainsInstructionS
 		}
 	}
 
+	@Override
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
 		((ParseNode)condition).setFunctions(functions);
@@ -122,6 +105,7 @@ public class IfPN extends ParseNode implements Instruction, ContainsInstructionS
 		}
 	}
 
+	@Override
 	public void checkTypes(String returnType) throws Exception {
 		if(!condition.type().equals("bool")) {
 			throw new MismatchedTypeException("The condition of an if statement must be of type bool. Instead it is of type " + condition.type() + " on " + ((ParseNode)condition).lcText() + ".");

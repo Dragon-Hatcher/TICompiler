@@ -17,14 +17,7 @@ public class VariableUsePN extends ParseNode implements Evaluable {
 		return "(var: " + name + ")";
 	}
 
-	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		return null;
-	}
-
-	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
-		this.variables = superVariables;
-	}
-
+	@Override
 	public String type() throws Exception {
 		if(variables.containsKey(name)) {
 			return variables.get(name);
@@ -33,11 +26,4 @@ public class VariableUsePN extends ParseNode implements Evaluable {
 		}
 	}
 	
-	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
-		this.functions = functions;
-	}
-	
-	public void checkTypes(String returnType) throws Exception {
-	}
-
 }

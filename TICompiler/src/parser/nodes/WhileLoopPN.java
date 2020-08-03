@@ -7,7 +7,7 @@ import java.util.Set;
 import parser.exceptions.MismatchedTypeException;
 import toolkit.Copy;
 
-public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstructionSequence, ContainsEvaluable {
+public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstructionSequence {
 
 	Evaluable condition = null;
 	InstructionSequencePN instructions = new InstructionSequencePN();
@@ -42,31 +42,25 @@ public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstr
 		")\n";
 	}
 
+	@Override
 	public boolean willReturn() {
 		return false;
 	}
 
-	public boolean hasIllegalBreak() {
-		return false;
+	@Override
+	public void hasIllegalBreak() {
+		//while loops can't have illegal breaks
 	}
 
-	public VariableDeclerationPN hasIllegalDeclerationType(Set<String> types) {
-		return instructions.hasIllegalDeclerationType(types);
+	@Override
+	public void hasIllegalDeclerationType(Set<String> types) throws Exception {
+		instructions.hasIllegalDeclerationType(types);
 	}
 	
-	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		FunctionCallPN condFC = null;
-		if(condition instanceof ContainsEvaluable) {
-			condFC = ((ContainsEvaluable)condition).checkFunctionNameAndLength(functions);
-		}
-		FunctionCallPN bodyFC = instructions.checkFunctionNameAndLength(functions);
-		
-		if(condFC != null) {
-			return condFC;
-		} else {
-			return bodyFC;
-		}
-		
+	@Override
+	public void checkFunctionNameAndLength() throws Exception {
+		((ParseNode)condition).checkFunctionNameAndLength();
+		instructions.checkFunctionNameAndLength();
 	}
 
 	@Override
@@ -76,12 +70,14 @@ public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstr
 		instructions.setSubParseNodeVariables(Copy.deepCopyMap(superVariables));
 	}
 	
+	@Override
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
 		((ParseNode)condition).setFunctions(functions);
 		instructions.setFunctions(functions);
 	}
 	
+	@Override
 	public void checkTypes(String returnType) throws Exception {
 		if(!condition.type().equals("bool")) {
 			throw new MismatchedTypeException("The condition of a while statement must be of type bool. Instead it is of type " + condition.type() + " on " + ((ParseNode)condition).lcText() + ".");

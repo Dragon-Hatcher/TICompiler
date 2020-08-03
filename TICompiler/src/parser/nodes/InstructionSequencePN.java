@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 import parser.exceptions.DuplicateVariableException;
+import semanticAnalyzer.exceptions.IllegalBreakException;
+import semanticAnalyzer.exceptions.IllegalTypeDeclerationException;
 
 public class InstructionSequencePN extends ParseNode implements Instruction, ContainsInstructionSequence {
 
@@ -25,6 +27,7 @@ public class InstructionSequencePN extends ParseNode implements Instruction, Con
 		return "(InstructionSequence:\n" + String.join("\n", lines) + "\n)\n";
 	}
 
+	@Override
 	public boolean willReturn() {
 		for(Instruction i : instructions) {
 			if(i instanceof ReturnStatementPN) {
@@ -36,48 +39,33 @@ public class InstructionSequencePN extends ParseNode implements Instruction, Con
 		return false;
 	}
 	
-	public boolean hasIllegalBreak() {
+	@Override
+	public void hasIllegalBreak() throws Exception {
 		for(Instruction i : instructions) {
 			if(i instanceof BreakPN) {
-				return true;
-			} else if (i instanceof ContainsInstructionSequence && ((ContainsInstructionSequence)i).hasIllegalBreak()) {
-				return true;
+				throw new IllegalBreakException("Illegal break on " + ((BreakPN)i).lcText() + ".");
+			} else if (i instanceof ContainsInstructionSequence) {
+				((ContainsInstructionSequence)i).hasIllegalBreak();
 			}
 		}
-		return false;
 	}
-
-	public VariableDeclerationPN hasIllegalDeclerationType(Set<String> types) {
+	
+	@Override
+	public void hasIllegalDeclerationType(Set<String> types) throws Exception {
 		for(Instruction i : instructions) {
 			if(i instanceof VariableDeclerationPN && !types.contains(((VariableDeclerationPN)i).type)) {
-				return (VariableDeclerationPN)i;
+				throw new IllegalTypeDeclerationException("Illegal decleration of type " + ((VariableDeclerationPN)i).type + " for variable " + ((VariableDeclerationPN)i).name + " on " + ((VariableDeclerationPN)i).lcText() + ".");
 			} else if (i instanceof ContainsInstructionSequence) {
-				VariableDeclerationPN illegalDecleration = ((ContainsInstructionSequence)i).hasIllegalDeclerationType(types);
-				if(illegalDecleration != null) {
-					return illegalDecleration;
-				}
+				((ContainsInstructionSequence)i).hasIllegalDeclerationType(types);
 			}
 		}
-		return null;
 	}
 
-	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
+	@Override
+	public void checkFunctionNameAndLength() throws Exception {
 		for(Instruction i : instructions) {
-			if(i instanceof FunctionCallPN && ((FunctionCallPN)i).hasBadFunctionNameOrLength(functions)) {
-				return (FunctionCallPN)i;
-			} else if (i instanceof ContainsInstructionSequence) {
-				FunctionCallPN illegalFunction = ((ContainsInstructionSequence)i).checkFunctionNameAndLength(functions);
-				if(illegalFunction != null) {
-					return illegalFunction;
-				}
-			} else if (i instanceof ContainsEvaluable) {
-				FunctionCallPN illegalFunction = ((ContainsEvaluable)i).checkFunctionNameAndLength(functions);
-				if(illegalFunction != null) {
-					return illegalFunction;
-				}
-			}
-		}
-		return null;
+			((ParseNode)i).checkFunctionNameAndLength();
+		}	
 	}
 	
 	public void findVariables() throws Exception {
@@ -101,6 +89,7 @@ public class InstructionSequencePN extends ParseNode implements Instruction, Con
 		}
 	}
 	
+	@Override
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
 		for(Instruction i : instructions) {
@@ -108,6 +97,7 @@ public class InstructionSequencePN extends ParseNode implements Instruction, Con
 		}	
 	}
 
+	@Override
 	public void checkTypes(String returnType) throws Exception {
 		for(Instruction i : instructions) {
 			((ParseNode)i).checkTypes(returnType);

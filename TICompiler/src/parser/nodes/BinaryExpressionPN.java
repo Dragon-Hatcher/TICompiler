@@ -6,7 +6,7 @@ import java.util.Map;
 import langaugeConstructs.TokenValues;
 import parser.exceptions.*;
 
-public class BinaryExpressionPN extends ParseNode implements Evaluable, ContainsEvaluable {
+public class BinaryExpressionPN extends ParseNode implements Evaluable {
 
 	Evaluable left = null;
 	Evaluable right = null;
@@ -36,22 +36,10 @@ public class BinaryExpressionPN extends ParseNode implements Evaluable, Contains
 		return "(" + op + "\n" + String.join("\n", leftStrings) + "\n" + String.join("\n", rightStrings) + "\n)\n";
 	}
 
-	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		FunctionCallPN leftFC = null;
-		FunctionCallPN rightFC = null;
-		
-		if(left instanceof ContainsEvaluable) {
-			leftFC = ((ContainsEvaluable)left).checkFunctionNameAndLength(functions);
-		}
-		if(right instanceof ContainsEvaluable) {
-			rightFC = ((ContainsEvaluable)right).checkFunctionNameAndLength(functions);
-		}		
-		
-		if(leftFC != null) {
-			return leftFC;
-		} else {
-			return rightFC;
-		}
+	@Override
+	public void checkFunctionNameAndLength() throws Exception {
+		((ParseNode)left).checkFunctionNameAndLength();
+		((ParseNode)right).checkFunctionNameAndLength();
 	}
 
 	@Override
@@ -70,18 +58,21 @@ public class BinaryExpressionPN extends ParseNode implements Evaluable, Contains
 		return TokenValues.opReturnTypes.get(op).get(leftType);
 	}
 
+	@Override
 	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
 		this.variables = superVariables;
 		((ParseNode)left).setSubParseNodeVariables(superVariables);
 		((ParseNode)right).setSubParseNodeVariables(superVariables);
 	}
 	
+	@Override
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
 		((ParseNode)left).setFunctions(functions);
 		((ParseNode)right).setFunctions(functions);
 	}
 
+	@Override
 	public void checkTypes(String returnType) throws Exception {
 		((ParseNode)left).checkTypes(returnType);
 		((ParseNode)right).checkTypes(returnType);

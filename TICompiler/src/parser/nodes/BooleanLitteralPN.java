@@ -14,19 +14,8 @@ public class BooleanLitteralPN extends ParseNode implements Evaluable {
 		return "("+trueOrFalse+")";
 	}
 
+	@Override
 	public String type() {
 		return "bool";
 	}	
-	
-	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
-		this.variables = superVariables;
-	}
-	
-	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
-		this.functions = functions;
-	}
-
-	public void checkTypes(String returnType) throws Exception {
-	}
-		
 }

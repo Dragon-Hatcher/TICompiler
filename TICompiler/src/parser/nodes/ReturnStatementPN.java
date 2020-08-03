@@ -29,10 +29,14 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 		return "(Return:\n" + String.join("\n", statementStrings) + "\n)\n";
 	}
 
-	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		return null;
+	@Override
+	public void checkFunctionNameAndLength() throws Exception {
+		if(statement != null) {
+			((ParseNode)statement).checkFunctionNameAndLength();
+		}
 	}
 
+	@Override
 	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
 		this.variables = superVariables;
 		if (statement != null) {
@@ -40,10 +44,15 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 		}
 	}
 
+	@Override
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
+		if (statement != null) {
+			((ParseNode) statement).setFunctions(functions);
+		}
 	}
 
+	@Override
 	public void checkTypes(String returnType) throws Exception {
 		if (statement != null) {
 			if (!returnType.equals(statement.type())) {
@@ -55,7 +64,6 @@ public class ReturnStatementPN extends ParseNode implements Instruction {
 			throw new MismatchedTypeException("Return  on " + lcText() + " should return type " + returnType
 					+ ". Instead it returns type void.");
 		}
-
 	}
 
 }

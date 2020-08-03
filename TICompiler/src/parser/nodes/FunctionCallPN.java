@@ -6,12 +6,14 @@ import java.util.Set;
 
 import parser.exceptions.MismatchedTypeException;
 import parser.exceptions.UseOfUnknownFunctionException;
+import semanticAnalyzer.exceptions.IllegalFunctionCallException;
 
-public class FunctionCallPN extends ParseNode implements Evaluable, Instruction, ContainsEvaluable {
+public class FunctionCallPN extends ParseNode implements Evaluable, Instruction {
 
 	public String functionName = "";
 	public ArrayList<Evaluable> params = new ArrayList<Evaluable>();
 	
+	@Override
 	public String toString() {
 		ArrayList<String> paramLines = new ArrayList<String>();
 		
@@ -25,36 +27,26 @@ public class FunctionCallPN extends ParseNode implements Evaluable, Instruction,
 		return "(Function Call:\n  (Name: " + functionName + ")\n  (Params:\n" + String.join("\n", paramLines) + "\n  )\n)\n";
 	}
 	
-	public boolean hasBadFunctionNameOrLength(Map<String, FunctionDeclerationPN> functions) {
+	public void hasBadFunctionNameOrLength() throws Exception {
 		if(!functions.containsKey(functionName)) {
-			return true;
+			throw new IllegalFunctionCallException("Illegal call to unknown function " + functionName + " on " + lcText() + ".");
 		}
 		
 		if(functions.get(functionName).parameters.size() != params.size()) {
-			return true;
+			throw new IllegalFunctionCallException("Call to function " + functionName + " on " + lcText() + " has " + params.size() + " parameters instead of " + functions.get(functionName).parameters.size() + ".");
 		}
-		
-		return false;
 	}
 
 	@Override
-	public FunctionCallPN checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) {
-		if(hasBadFunctionNameOrLength(functions)) {
-			return this;
-		}
+	public void checkFunctionNameAndLength() throws Exception {
+		hasBadFunctionNameOrLength();
 		
 		for(Evaluable e : params) {
-			if(e instanceof ContainsEvaluable) {
-				FunctionCallPN eFC = ((ContainsEvaluable)e).checkFunctionNameAndLength(functions);
-				if(eFC != null) {
-					return eFC;
-				}
-			}
+			((ParseNode)e).checkFunctionNameAndLength();
 		}
-		
-		return null;
 	}
 
+	@Override
 	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
 		this.variables = superVariables;
 		for(Evaluable param : params) {
@@ -62,6 +54,7 @@ public class FunctionCallPN extends ParseNode implements Evaluable, Instruction,
 		}
 	}
 
+	@Override
 	public void setFunctions(Map<String, FunctionDeclerationPN> functions) {
 		this.functions = functions;
 		for(Evaluable p : params) {
@@ -78,6 +71,7 @@ public class FunctionCallPN extends ParseNode implements Evaluable, Instruction,
 		}
 	}
 	
+	@Override
 	public void checkTypes(String returnType) throws Exception {
 		if(!functions.containsKey(functionName)) {
 			throw new UseOfUnknownFunctionException("Use of unknown function " + functionName + " on " + lcText() + ".");			
