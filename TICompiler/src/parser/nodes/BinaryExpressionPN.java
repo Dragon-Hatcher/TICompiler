@@ -9,9 +9,9 @@ import parser.exceptions.*;
 
 public class BinaryExpressionPN extends ParseNode implements Evaluable {
 
-	Evaluable left = null;
-	Evaluable right = null;
-	String op = "";
+	public Evaluable left = null;
+	public Evaluable right = null;
+	public String op = "";
 	
 	public BinaryExpressionPN(Evaluable left, Evaluable right, String op) {
 		this.left = left;

@@ -3,9 +3,9 @@ package intermediateLanguageGenerator.nodes;
 public class SetILPN extends ILParseNode {
 
 	String sete = "";
-	String seter = "";
+	ILEvaluable seter;
 	
-	public SetILPN(String sete, String seter) {
+	public SetILPN(String sete, ILEvaluable seter) {
 		this.sete = sete;
 		this.seter = seter;
 	}

@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class NumLitteralPN extends ParseNode implements Evaluable {
 
-	String num = "";
+	public String num = "";
 	
 	public NumLitteralPN (String num) {
 		this.num = num;

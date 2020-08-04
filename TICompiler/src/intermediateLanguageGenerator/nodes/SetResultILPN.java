@@ -3,11 +3,11 @@ package intermediateLanguageGenerator.nodes;
 public class SetResultILPN extends ILParseNode {
 
 	String sete;
-	String left;
-	String right;
+	ILEvaluable left;
+	ILEvaluable right;
 	Ops operator;
 	
-	public SetResultILPN(String sete, String left, String right, Ops operator) {
+	public SetResultILPN(String sete, ILEvaluable left, ILEvaluable right, Ops operator) {
 		this.sete = sete;
 		this.left = left;
 		this.right = right;

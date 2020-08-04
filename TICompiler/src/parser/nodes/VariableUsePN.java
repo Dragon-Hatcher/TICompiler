@@ -8,7 +8,7 @@ import parser.exceptions.VariableUsedBeforeDeclaredException;
 
 public class VariableUsePN extends ParseNode implements Evaluable {
 
-	String name = "";
+	public String name = "";
 	
 	public VariableUsePN(String name) {
 		this.name = name;

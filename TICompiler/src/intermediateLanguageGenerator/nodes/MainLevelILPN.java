@@ -21,5 +21,9 @@ public class MainLevelILPN extends ILParseNode {
 	public void add(ILParseNode toAdd) {
 		instructions.add(toAdd);
 	}
+	
+	public void addAll(ArrayList<ILParseNode> toAdd) {
+		instructions.addAll(toAdd);
+	}
 
 }

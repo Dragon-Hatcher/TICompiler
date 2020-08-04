@@ -10,9 +10,9 @@ import parser.exceptions.VariableUsedBeforeDeclaredException;
 
 public class AssignmentPN extends ParseNode implements Instruction {
 
-	String varName = "";
-	String assignOp = "";
-	Evaluable toAssign = null;
+	public String varName = "";
+	public String assignOp = "";
+	public Evaluable toAssign = null;
 	
 	public AssignmentPN(String varName, String assignOp, Evaluable toAssign) {
 		this.varName = varName;
@@ -72,4 +72,7 @@ public class AssignmentPN extends ParseNode implements Instruction {
 		((ParseNode)toAssign).checkVariableUsedBeforeDeclared(vars);
 	}
 
+	public String getVarType() {
+		return variables.get(varName);
+	}
 }
