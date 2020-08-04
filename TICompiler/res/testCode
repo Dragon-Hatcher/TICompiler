@@ -1,32 +1,38 @@
-func add(int intX, int y, int z) -> int {
-	return x + intX + y + z;
-}
-
-func test() -> void {
-	return;
-}
+//func add(int intX, int intY, int z) -> int {
+//	return x + intX + intY + z;
+//}
+//
+//func test() -> void {
+//	return;
+//}
+//
+//main {
+//
+//	var x:int = 1;
+//	x += 1;
+//	
+//	x = 1 + 2 * 3 + 6 / 2;
+//	
+//	//check if x is equals to 2 if so add 3.156 and 5 to it
+//	if(x == 2 && true) {
+//		var z:int = 33;
+//		x = add(x, z, 3);
+//	} else if (x > 10) {
+//		x -= 10;
+//	} else {
+//		x -= 3;
+//	}
+//	
+//	if(true) {
+//	}
+//	
+//	while(x < 100) {
+//		x += 1;
+//		break;
+//	}
+//}
 
 main {
 	var x:int = 1;
-	x += 1;
-	
-	x = 1 + 2 * 3 + 6 / 2;
-	
-	//check if x is equals to 2 if so add 3.156 and 5 to it
-	if(x == 2 && true) {
-		var y:int = 33;
-		x = add(x, y, 3);
-	} else if (x > 10) {
-		x -= 10;
-	} else {
-		x -= 3;
-	}
-	
-	if(true) {
-	}
-	
-	while(x < 100) {
-		x += 1;
-		break;
-	}
+	var y:int = 1;
 }
