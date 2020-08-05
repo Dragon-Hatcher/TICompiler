@@ -64,7 +64,8 @@ public class MainLevelPN extends ParseNode {
 		}
 	}
 	
-	public void checkFunctionNameAndLength(Map<String, FunctionDeclerationPN> functions) throws Exception {
+	@Override
+	public void checkFunctionNameAndLength() throws Exception {
 		main.checkFunctionNameAndLength();
 		for(FunctionDeclerationPN f : this.functions) {
 			f.checkFunctionNameAndLength();

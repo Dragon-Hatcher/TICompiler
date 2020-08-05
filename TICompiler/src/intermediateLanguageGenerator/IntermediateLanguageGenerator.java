@@ -88,6 +88,22 @@ public class IntermediateLanguageGenerator {
 			typeTemps.put(operandsType, typeTemps.get(operandsType) - 2);
 
 			return ret;
+		} else if (evaluable instanceof FunctionCallPN) {
+			FunctionCallPN eFC = ((FunctionCallPN)evaluable);
+			String returnType = eFC.type();
+			
+			ret.add(new SetReturnVarToILPN(tempName(tempToPutResult, returnType)));
+			int paramNumber = 0;
+			for(Evaluable e : eFC.params) {
+				typeTemps.put(e.type(), typeTemps.get(e.type()) + 1);
+				ret.addAll(parseExpression(e, typeTemps.get(e.type()), typeTemps));
+				ret.add(new SetParamToVarILPN(paramNumber++, tempName(typeTemps, e.type())));
+				typeTemps.put(e.type(), typeTemps.get(e.type()) - 1);
+			}
+			
+			ret.add(new CallILPN(eFC.functionName));
+			
+			return ret;
 		} else {
 			throw new Exception("Unimplemented expression parse in IntermediateLanguageGeneration");
 		}

@@ -32,7 +32,12 @@
 //	}
 //}
 
+func plusOne(int num, int numtwo) -> int {
+	return num + numtwo + 1;
+}
+
 main {
-	var x:int = 1;
+	var x:int = 1 + plusOne(2, 3);
 	var y:int = 1;
+	return;
 }

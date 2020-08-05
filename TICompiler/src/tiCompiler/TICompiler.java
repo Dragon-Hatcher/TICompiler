@@ -18,7 +18,7 @@ import semanticAnalyzer.SemanticAnalyzer;
 
 public class TICompiler {
 
-	public static void main(String[] args) {		
+	public static void main(String[] args) throws Exception {		
 		String code = "";
 		try {
 			code = readFileAsString("./res/testCode");
