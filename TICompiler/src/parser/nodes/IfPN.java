@@ -9,9 +9,9 @@ import toolkit.Copy;
 
 public class IfPN extends ParseNode implements Instruction, ContainsInstructionSequence {
 	
-	Evaluable condition = null;
-	InstructionSequencePN instructions = new InstructionSequencePN();
-	InstructionSequencePN elseInstructions = null;
+	public Evaluable condition = null;
+	public InstructionSequencePN instructions = new InstructionSequencePN();
+	public InstructionSequencePN elseInstructions = null;
 	
 	public IfPN(Evaluable condition, InstructionSequencePN instructions, InstructionSequencePN elseInstructions) {
 		this.condition = condition;

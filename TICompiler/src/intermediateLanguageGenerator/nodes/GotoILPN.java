@@ -3,16 +3,20 @@ package intermediateLanguageGenerator.nodes;
 public class GotoILPN extends ILParseNode {
 	
 	String label = "";
-	ConditionTypes condition;
+	String ifVar = "";
 	
-	public GotoILPN(String label, ConditionTypes condition) {
+	public GotoILPN(String label, String ifVar) {
 		this.label = label;
-		this.condition = condition;
+		this.ifVar = ifVar;
 	}
 
+	public GotoILPN(String label) {
+		this.label = label;
+	}
+	
 	@Override
 	public String toString() {
-		return "Goto " + label + " if " + condition;
+		return "Goto " + label + (ifVar.equals("") ? "" : " if " + ifVar);
 	}
 
 }

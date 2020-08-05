@@ -13,7 +13,7 @@ public class MainLevelILPN extends ILParseNode {
 	public String toString() {
 		StringBuilder ret = new StringBuilder();
 		for(ILParseNode pn : instructions) {
-			ret.append(pn.toString() + "\n");
+			ret.append((pn instanceof LabelILPN ? "" : "  ") + pn.toString() + "\n");
 		}
 		return ret.toString();
 	}
