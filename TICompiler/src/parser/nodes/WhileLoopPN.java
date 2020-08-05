@@ -9,8 +9,8 @@ import toolkit.Copy;
 
 public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstructionSequence {
 
-	Evaluable condition = null;
-	InstructionSequencePN instructions = new InstructionSequencePN();
+	public Evaluable condition = null;
+	public InstructionSequencePN instructions = new InstructionSequencePN();
 	
 	public WhileLoopPN(Evaluable condition, InstructionSequencePN instructions) {
 		this.condition = condition;

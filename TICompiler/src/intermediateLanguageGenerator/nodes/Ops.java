@@ -9,7 +9,11 @@ public enum Ops {
 	OR,
 	XOR,
 	EQUAL,
-	NOT_EQUAL;
+	NOT_EQUAL,
+	LESS,
+	GREATER,
+	LESS_OR_EQUAL,
+	GREATER_OR_EQUAL;
 	
 	public static Ops fromPNOp(String parseNodeOp) throws Exception {
 		switch(parseNodeOp) {
@@ -21,6 +25,10 @@ public enum Ops {
 		case "||": return OR;
 		case "==": return EQUAL;
 		case "!=": return NOT_EQUAL;
+		case "<": return LESS;
+		case ">": return GREATER;
+		case "<=": return LESS_OR_EQUAL;
+		case ">=": return GREATER_OR_EQUAL;
 		default: throw new Exception("Parse node op " + parseNodeOp + " doesn't convert");
 		}
 	}

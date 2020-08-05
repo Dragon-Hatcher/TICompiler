@@ -22,13 +22,13 @@ public class IntermediateLanguageGenerator {
 		typeTemps.put("float", 0);
 		typeTemps.put("bool", 0);
 		typeTemps.put("char", 0);
-		main.addAll(parseInstructionSequence(mainPN.main, typeTemps));
+		main.addAll(parseInstructionSequence(mainPN.main, typeTemps, -1, -1));
 
 		System.out.println(main);
 		return main;
 	}
 
-	private ArrayList<ILParseNode> parseInstructionSequence(InstructionSequencePN iS, Map<String, Integer> typeTemps)
+	private ArrayList<ILParseNode> parseInstructionSequence(InstructionSequencePN iS, Map<String, Integer> typeTemps, int whileLoopName, int layersSinceWhile)
 			throws Exception {
 		ArrayList<ILParseNode> ilNodes = new ArrayList<ILParseNode>();
 
@@ -67,13 +67,32 @@ public class IntermediateLanguageGenerator {
 					ilNodes.add(new GotoILPN("else_" + name));
 				}
 				ilNodes.add(new LabelILPN("then_" + name));
-				ilNodes.addAll(parseInstructionSequence(iIf.instructions, typeTemps));
+				ilNodes.addAll(parseInstructionSequence(iIf.instructions, typeTemps, whileLoopName, layersSinceWhile + 1));
 				ilNodes.add(new GotoILPN("endif_" + name));
 				if (iIf.elseInstructions != null) {
 					ilNodes.add(new LabelILPN("else_" + name));
-					ilNodes.addAll(parseInstructionSequence(iIf.elseInstructions, typeTemps));
+					ilNodes.addAll(parseInstructionSequence(iIf.elseInstructions, typeTemps, whileLoopName, layersSinceWhile + 1));
 				}
 				ilNodes.add(new LabelILPN("endif_" + name));
+			} else if (i instanceof WhileLoopPN) {
+				WhileLoopPN iWL = (WhileLoopPN)i;
+				int name = getUniqueNameNum();
+
+				ilNodes.add(new LabelILPN("condition_" + name));
+				ilNodes.addAll(parseExpression(iWL.condition, typeTemps.get("bool"), typeTemps));
+				ilNodes.add(new GotoILPN("while_" + name, tempName(typeTemps.get("bool"), "bool")));
+				ilNodes.add(new GotoILPN("endwhile_" + name));
+
+				ilNodes.add(new LabelILPN("while_" + name));
+				ilNodes.addAll(parseInstructionSequence(iWL.instructions, typeTemps, name, 1));
+				ilNodes.add(new GotoILPN("condition_" + name));
+
+				ilNodes.add(new LabelILPN("endwhile_" + name));
+			} else if (i instanceof BreakPN) {
+				for(int j = 0; j < layersSinceWhile; j++) {
+					ilNodes.add(new CloseScopeILPN());					
+				}
+				ilNodes.add(new GotoILPN("endwhile_" + whileLoopName));
 			}
 		}
 
