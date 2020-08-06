@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class MainLevelILPN extends ILParseNode {
 
-	private ArrayList<ILParseNode> instructions = new ArrayList<ILParseNode>();
+	public ArrayList<ILParseNode> instructions = new ArrayList<ILParseNode>();
 	
 	public MainLevelILPN() {
 	}

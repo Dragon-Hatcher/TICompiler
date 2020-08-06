@@ -1,5 +1,7 @@
 package intermediateLanguageGenerator.nodes;
 
+import java.util.Map;
+
 public class SetParamToVarILPN extends ILParseNode {
 
 	int paramNumber;
@@ -14,6 +16,14 @@ public class SetParamToVarILPN extends ILParseNode {
 	public String toString() {
 		return "Set param " + paramNumber + " to " + varToSetParamTo;
 	}
-	
+
+	@Override
+	public void updateHighestUsedTemp(Map<String, Integer> uses) {
+		if (isTemp(varToSetParamTo)) {
+			String type = getTempType(varToSetParamTo);
+			int num = getTempNum(varToSetParamTo);
+			uses.put(type, Math.max(uses.get(type), num + 1));
+		}
+	}
 
 }

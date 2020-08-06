@@ -6,6 +6,7 @@ import java.util.Map;
 
 import intermediateLanguageGenerator.nodes.*;
 import parser.nodes.*;
+import toolkit.Copy;
 
 public class IntermediateLanguageGenerator {
 
@@ -14,7 +15,7 @@ public class IntermediateLanguageGenerator {
 
 	private int uniqueNameCount = 0;
 	private int functionNameCount = 1;
-	
+
 	public MainLevelILPN generatorIL(MainLevelPN mainLevelPN) throws Exception {
 		mainPN = mainLevelPN;
 
@@ -29,17 +30,42 @@ public class IntermediateLanguageGenerator {
 		main.add(new LabelILPN("func_end_0"));
 		main.add(new CloseAreaILPN());
 
-		for(FunctionDeclerationPN func : mainPN.functions) {
+		for (FunctionDeclerationPN func : mainPN.functions) {
 			main.addAll(parseFunction(func, typeTemps));
 		}
-		
+
+		int start = 0;
+		int end = 0;
+		int func = 0;
+		Map<String, Integer> superUses = new HashMap<String, Integer>();
+		superUses.put("int", 0);
+		superUses.put("float", 0);
+		superUses.put("bool", 0);
+		superUses.put("char", 0);
+		for (int i = 0; i < main.instructions.size(); i++) {
+			if (main.instructions.get(i) instanceof LabelILPN) {
+				LabelILPN iL = (LabelILPN) main.instructions.get(i);
+				if (iL.label.startsWith("func_start_" + func)) {
+					start = i;
+				} else if (iL.label.startsWith("func_end_" + func)) {
+					end = i;
+					Map<String, Integer> temps = findTemps(main.instructions, start, end, superUses);
+					if(func == 0) {
+						superUses = temps;
+					}
+					func++;
+				}
+			}
+		}
+
 		System.out.println(main);
 		return main;
 	}
 
-	private ArrayList<ILParseNode> parseFunction(FunctionDeclerationPN func, Map<String, Integer> typeTemps) throws Exception {
+	private ArrayList<ILParseNode> parseFunction(FunctionDeclerationPN func, Map<String, Integer> typeTemps)
+			throws Exception {
 		int name = getUniqueFuncNum();
-		
+
 		ArrayList<ILParseNode> ilNodes = new ArrayList<ILParseNode>();
 		ilNodes.add(new LabelILPN("func_start_" + name));
 		ilNodes.add(new OpenAreaILPN());
@@ -47,19 +73,18 @@ public class IntermediateLanguageGenerator {
 
 		ArrayList<ILParseNode> params = new ArrayList<ILParseNode>();
 		params.add(new CreateVariableILPN("$return_adress_" + name, "int"));
-		for(VariableDeclerationPN param : func.parameters) {
+		for (VariableDeclerationPN param : func.parameters) {
 			params.add(new CreateVariableILPN(param.name, param.type));
 		}
 		ilNodes.addAll(2, params);
 		ilNodes.add(new LabelILPN("func_end_" + name));
 		ilNodes.add(new CloseAreaILPN());
-		
+
 		return ilNodes;
 	}
-	
-	private ArrayList<ILParseNode> parseInstructionSequence(
-			InstructionSequencePN iS, Map<String, Integer> typeTemps, int whileLoopName, int layersSinceWhile, int funcName, int layersSinceFunc)
-			throws Exception {
+
+	private ArrayList<ILParseNode> parseInstructionSequence(InstructionSequencePN iS, Map<String, Integer> typeTemps,
+			int whileLoopName, int layersSinceWhile, int funcName, int layersSinceFunc) throws Exception {
 		ArrayList<ILParseNode> ilNodes = new ArrayList<ILParseNode>();
 
 		ilNodes.add(new OpenScopeILPN());
@@ -98,15 +123,17 @@ public class IntermediateLanguageGenerator {
 					ilNodes.add(new GotoILPN("else_" + name));
 				}
 				ilNodes.add(new LabelILPN("then_" + name));
-				ilNodes.addAll(parseInstructionSequence(iIf.instructions, typeTemps, whileLoopName, layersSinceWhile + 1, funcName, layersSinceFunc));
+				ilNodes.addAll(parseInstructionSequence(iIf.instructions, typeTemps, whileLoopName,
+						layersSinceWhile + 1, funcName, layersSinceFunc));
 				ilNodes.add(new GotoILPN("endif_" + name));
 				if (iIf.elseInstructions != null) {
 					ilNodes.add(new LabelILPN("else_" + name));
-					ilNodes.addAll(parseInstructionSequence(iIf.elseInstructions, typeTemps, whileLoopName, layersSinceWhile + 1, funcName, layersSinceFunc));
+					ilNodes.addAll(parseInstructionSequence(iIf.elseInstructions, typeTemps, whileLoopName,
+							layersSinceWhile + 1, funcName, layersSinceFunc));
 				}
 				ilNodes.add(new LabelILPN("endif_" + name));
 			} else if (i instanceof WhileLoopPN) {
-				WhileLoopPN iWL = (WhileLoopPN)i;
+				WhileLoopPN iWL = (WhileLoopPN) i;
 				int name = getUniqueNameNum();
 
 				ilNodes.add(new LabelILPN("condition_" + name));
@@ -115,24 +142,25 @@ public class IntermediateLanguageGenerator {
 				ilNodes.add(new GotoILPN("endwhile_" + name));
 
 				ilNodes.add(new LabelILPN("while_" + name));
-				ilNodes.addAll(parseInstructionSequence(iWL.instructions, typeTemps, name, 1, funcName, layersSinceFunc));
+				ilNodes.addAll(
+						parseInstructionSequence(iWL.instructions, typeTemps, name, 1, funcName, layersSinceFunc));
 				ilNodes.add(new GotoILPN("condition_" + name));
 
 				ilNodes.add(new LabelILPN("endwhile_" + name));
 			} else if (i instanceof BreakPN) {
-				for(int j = 0; j < layersSinceWhile; j++) {
+				for (int j = 0; j < layersSinceWhile; j++) {
 					ilNodes.add(new CallCloseScopeILPN());
 				}
 				ilNodes.add(new GotoILPN("endwhile_" + whileLoopName));
-			} else if(i instanceof ReturnStatementPN) {
-				ReturnStatementPN iR = (ReturnStatementPN)i;
+			} else if (i instanceof ReturnStatementPN) {
+				ReturnStatementPN iR = (ReturnStatementPN) i;
 
-				if(iR.statement != null) {
+				if (iR.statement != null) {
 					ilNodes.addAll(parseExpression(iR.statement, typeTemps.get(iR.statement.type()), typeTemps));
 					ilNodes.add(new ReturnValueILPN(tempName(typeTemps, iR.statement.type())));
 				}
 
-				for(int j = 0; j < layersSinceFunc; j++) {
+				for (int j = 0; j < layersSinceFunc; j++) {
 					ilNodes.add(new CallCloseScopeILPN());
 				}
 				ilNodes.add(new GotoILPN("func_end_" + funcName));
@@ -210,6 +238,60 @@ public class IntermediateLanguageGenerator {
 		return ret;
 	}
 
+	private Map<String, Integer> findTemps(ArrayList<ILParseNode> code, int start, int end,
+			Map<String, Integer> superUses) {
+
+		System.err.println(">>" + start + ", " + end);
+		
+		Map<String, Integer> myUses = Copy.deepCopyMapSI(superUses);
+		
+		int depthCount = 0;
+		for(int i = start; i < end; i++) {
+			if(code.get(i) instanceof OpenScopeILPN) {
+				depthCount++;
+			} else if(code.get(i) instanceof CloseScopeILPN) {
+				depthCount--;
+			}
+
+			if(depthCount == 1) {
+				code.get(i).updateHighestUsedTemp(myUses);
+			}
+		}
+		
+		ArrayList<ILParseNode> newVars = new ArrayList<ILParseNode>();
+		for(String type : superUses.keySet()) {
+			for(int i = superUses.get(type); i < myUses.get(type); i++) {
+				newVars.add(new CreateVariableILPN("$_temp" + i + "_" + type, type));
+			}
+		}
+		
+		int rStart = 0;
+		int rEnd = 0;
+		int rDepthCount = 0;
+		for(int i = start; i < end + newVars.size(); i++) {
+			if(code.get(i) instanceof OpenScopeILPN) {
+				rDepthCount++;
+			} else if(code.get(i) instanceof CloseScopeILPN) {
+				rDepthCount--;
+			}
+			
+			if(rDepthCount == 1 && (code.get(i) instanceof OpenScopeILPN)) {
+				System.err.println(i + 1);
+				System.err.println(newVars);
+				code.addAll(i + 1, newVars);
+			}
+			
+			if(rDepthCount == 2 && code.get(i) instanceof OpenScopeILPN) {
+				rStart = i;
+			} else if(rDepthCount == 2 && code.get(i) instanceof CloseScopeILPN) {
+				rEnd = i;
+				findTemps(code, rStart, rEnd, myUses);
+			}
+		}
+		
+		return myUses;
+	}
+
 	public int getUniqueNameNum() {
 		return uniqueNameCount++;
 	}
@@ -218,7 +300,6 @@ public class IntermediateLanguageGenerator {
 		return functionNameCount++;
 	}
 
-	
 	private String tempName(Map<String, Integer> typeTemps, String type) {
 		return "$_temp" + typeTemps.get(type) + "_" + type;
 	}

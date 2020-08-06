@@ -10,7 +10,7 @@ public class Copy {
 	private Copy() {
 	}
 	
-	public static Map<String, String> deepCopyMap(Map<String, String> oldMap) {
+	public static Map<String, String> deepCopyMapSS(Map<String, String> oldMap) {
 		Map<String, String> newMap = new HashMap<String, String>();
 		
 		for(String key : oldMap.keySet()) {
@@ -19,7 +19,17 @@ public class Copy {
 		
 		return newMap;
 	}
-	
+
+	public static Map<String, Integer> deepCopyMapSI(Map<String, Integer> oldMap) {
+		Map<String, Integer> newMap = new HashMap<String, Integer>();
+		
+		for(String key : oldMap.keySet()) {
+			newMap.put(key, oldMap.get(key));
+		}
+		
+		return newMap;
+	}
+
 	public static Set<String> deepCopySet(Set<String> oldSet) {
 		Set<String> newSet = new HashSet<String>();
 		for(String val : oldSet) {

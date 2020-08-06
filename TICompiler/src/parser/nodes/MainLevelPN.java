@@ -44,7 +44,7 @@ public class MainLevelPN extends ParseNode {
 		Map<String, String> emptyMap = new HashMap<String, String>();
 		main.setSubParseNodeVariables(emptyMap);
 		for(FunctionDeclerationPN func : functions) {
-			func.setSubParseNodeVariables(Copy.deepCopyMap(main.variables));
+			func.setSubParseNodeVariables(Copy.deepCopyMapSS(main.variables));
 		}
 	}
 	

@@ -89,9 +89,9 @@ public class IfPN extends ParseNode implements Instruction, ContainsInstructionS
 	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
 		this.variables = superVariables;
 		((ParseNode)condition).setSubParseNodeVariables(superVariables);
-		instructions.setSubParseNodeVariables(Copy.deepCopyMap(superVariables));
+		instructions.setSubParseNodeVariables(Copy.deepCopyMapSS(superVariables));
 		if(elseInstructions != null) {
-			elseInstructions.setSubParseNodeVariables(Copy.deepCopyMap(superVariables));
+			elseInstructions.setSubParseNodeVariables(Copy.deepCopyMapSS(superVariables));
 		}
 	}
 

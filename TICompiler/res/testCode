@@ -43,12 +43,13 @@ main {
 	var x:int = 1;
 	
 	while(x < 10) {
-		x = x + 1;
+		x = x + 1 + 1 + 2 + 3;
 		if(x == 2) {
 			break;
 		}
 	}
 
+	return;
 }
 
 

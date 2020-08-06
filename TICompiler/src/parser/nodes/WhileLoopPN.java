@@ -67,7 +67,7 @@ public class WhileLoopPN extends ParseNode implements Instruction, ContainsInstr
 	public void setSubParseNodeVariables(Map<String, String> superVariables) throws Exception {
 		this.variables = superVariables;
 		((ParseNode)condition).setSubParseNodeVariables(superVariables);
-		instructions.setSubParseNodeVariables(Copy.deepCopyMap(superVariables));
+		instructions.setSubParseNodeVariables(Copy.deepCopyMapSS(superVariables));
 	}
 	
 	@Override
