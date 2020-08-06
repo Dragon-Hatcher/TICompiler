@@ -8,7 +8,7 @@ import parser.exceptions.MismatchedTypeException;
 
 public class ReturnStatementPN extends ParseNode implements Instruction {
 
-	Evaluable statement = null;
+	public Evaluable statement = null;
 
 	public ReturnStatementPN(Evaluable statement) {
 		this.statement = statement;

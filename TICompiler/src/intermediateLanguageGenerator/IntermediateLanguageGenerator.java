@@ -13,7 +13,8 @@ public class IntermediateLanguageGenerator {
 	MainLevelILPN main = new MainLevelILPN();
 
 	private int uniqueNameCount = 0;
-
+	private int functionNameCount = 1;
+	
 	public MainLevelILPN generatorIL(MainLevelPN mainLevelPN) throws Exception {
 		mainPN = mainLevelPN;
 
@@ -22,13 +23,42 @@ public class IntermediateLanguageGenerator {
 		typeTemps.put("float", 0);
 		typeTemps.put("bool", 0);
 		typeTemps.put("char", 0);
-		main.addAll(parseInstructionSequence(mainPN.main, typeTemps, -1, -1));
+		main.add(new LabelILPN("func_start_0"));
+		main.add(new OpenAreaILPN());
+		main.addAll(parseInstructionSequence(mainPN.main, typeTemps, -1, -1, 0, 1));
+		main.add(new LabelILPN("func_end_0"));
+		main.add(new CloseAreaILPN());
 
+		for(FunctionDeclerationPN func : mainPN.functions) {
+			main.addAll(parseFunction(func, typeTemps));
+		}
+		
 		System.out.println(main);
 		return main;
 	}
 
-	private ArrayList<ILParseNode> parseInstructionSequence(InstructionSequencePN iS, Map<String, Integer> typeTemps, int whileLoopName, int layersSinceWhile)
+	private ArrayList<ILParseNode> parseFunction(FunctionDeclerationPN func, Map<String, Integer> typeTemps) throws Exception {
+		int name = getUniqueFuncNum();
+		
+		ArrayList<ILParseNode> ilNodes = new ArrayList<ILParseNode>();
+		ilNodes.add(new LabelILPN("func_start_" + name));
+		ilNodes.add(new OpenAreaILPN());
+		ilNodes.addAll(parseInstructionSequence(func.instructions, typeTemps, -1, -1, name, 1));
+
+		ArrayList<ILParseNode> params = new ArrayList<ILParseNode>();
+		params.add(new CreateVariableILPN("$return_adress_" + name, "int"));
+		for(VariableDeclerationPN param : func.parameters) {
+			params.add(new CreateVariableILPN(param.name, param.type));
+		}
+		ilNodes.addAll(2, params);
+		ilNodes.add(new LabelILPN("func_end_" + name));
+		ilNodes.add(new CloseAreaILPN());
+		
+		return ilNodes;
+	}
+	
+	private ArrayList<ILParseNode> parseInstructionSequence(
+			InstructionSequencePN iS, Map<String, Integer> typeTemps, int whileLoopName, int layersSinceWhile, int funcName, int layersSinceFunc)
 			throws Exception {
 		ArrayList<ILParseNode> ilNodes = new ArrayList<ILParseNode>();
 
@@ -42,7 +72,8 @@ public class IntermediateLanguageGenerator {
 		}
 
 		for (Instruction i : iS.instructions) {
-			if (i instanceof AssignmentPN) {
+			if (i instanceof VariableDeclerationPN) {
+			} else if (i instanceof AssignmentPN) {
 				AssignmentPN iA = ((AssignmentPN) i);
 				String varType = iA.getVarType();
 				ArrayList<ILParseNode> toAssignInstructions = parseExpression(iA.toAssign, typeTemps.get(varType),
@@ -67,11 +98,11 @@ public class IntermediateLanguageGenerator {
 					ilNodes.add(new GotoILPN("else_" + name));
 				}
 				ilNodes.add(new LabelILPN("then_" + name));
-				ilNodes.addAll(parseInstructionSequence(iIf.instructions, typeTemps, whileLoopName, layersSinceWhile + 1));
+				ilNodes.addAll(parseInstructionSequence(iIf.instructions, typeTemps, whileLoopName, layersSinceWhile + 1, funcName, layersSinceFunc));
 				ilNodes.add(new GotoILPN("endif_" + name));
 				if (iIf.elseInstructions != null) {
 					ilNodes.add(new LabelILPN("else_" + name));
-					ilNodes.addAll(parseInstructionSequence(iIf.elseInstructions, typeTemps, whileLoopName, layersSinceWhile + 1));
+					ilNodes.addAll(parseInstructionSequence(iIf.elseInstructions, typeTemps, whileLoopName, layersSinceWhile + 1, funcName, layersSinceFunc));
 				}
 				ilNodes.add(new LabelILPN("endif_" + name));
 			} else if (i instanceof WhileLoopPN) {
@@ -84,15 +115,29 @@ public class IntermediateLanguageGenerator {
 				ilNodes.add(new GotoILPN("endwhile_" + name));
 
 				ilNodes.add(new LabelILPN("while_" + name));
-				ilNodes.addAll(parseInstructionSequence(iWL.instructions, typeTemps, name, 1));
+				ilNodes.addAll(parseInstructionSequence(iWL.instructions, typeTemps, name, 1, funcName, layersSinceFunc));
 				ilNodes.add(new GotoILPN("condition_" + name));
 
 				ilNodes.add(new LabelILPN("endwhile_" + name));
 			} else if (i instanceof BreakPN) {
 				for(int j = 0; j < layersSinceWhile; j++) {
-					ilNodes.add(new CloseScopeILPN());					
+					ilNodes.add(new CallCloseScopeILPN());
 				}
 				ilNodes.add(new GotoILPN("endwhile_" + whileLoopName));
+			} else if(i instanceof ReturnStatementPN) {
+				ReturnStatementPN iR = (ReturnStatementPN)i;
+
+				if(iR.statement != null) {
+					ilNodes.addAll(parseExpression(iR.statement, typeTemps.get(iR.statement.type()), typeTemps));
+					ilNodes.add(new ReturnValueILPN(tempName(typeTemps, iR.statement.type())));
+				}
+
+				for(int j = 0; j < layersSinceFunc; j++) {
+					ilNodes.add(new CallCloseScopeILPN());
+				}
+				ilNodes.add(new GotoILPN("func_end_" + funcName));
+			} else {
+				throw new Exception("Don't know how to parse " + i.getClass());
 			}
 		}
 
@@ -108,7 +153,7 @@ public class IntermediateLanguageGenerator {
 			NumILPN num = new NumILPN(((NumLitteralPN) evaluable).num);
 			ret.add(new SetILPN("$_temp" + tempToPutResult + "_" + ((NumLitteralPN) evaluable).type(), num));
 			return ret;
-		} else if(evaluable instanceof BooleanLitteralPN) {
+		} else if (evaluable instanceof BooleanLitteralPN) {
 			BoolILPN bool = new BoolILPN(((BooleanLitteralPN) evaluable).trueOrFalse);
 			ret.add(new SetILPN("$_temp" + tempToPutResult + "_bool", bool));
 			return ret;
@@ -169,6 +214,11 @@ public class IntermediateLanguageGenerator {
 		return uniqueNameCount++;
 	}
 
+	public int getUniqueFuncNum() {
+		return functionNameCount++;
+	}
+
+	
 	private String tempName(Map<String, Integer> typeTemps, String type) {
 		return "$_temp" + typeTemps.get(type) + "_" + type;
 	}
