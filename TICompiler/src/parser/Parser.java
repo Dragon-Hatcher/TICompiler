@@ -174,7 +174,11 @@ public class Parser {
 				} else if (isAssign()) {
 					Token op = peek();
 					Evaluable toAssign = parseExpression(new Token(peek().text, TokenType.ASSIGNMENT), new Token(";", TokenType.SEPERATOR));
-					AssignmentPN assign = new AssignmentPN(id.text, op.text, toAssign);
+					if(!op.text.equals("=")) {
+						VariableUsePN var = new VariableUsePN(id.text);
+						toAssign = new BinaryExpressionPN(var, toAssign, op.text.substring(0, op.text.length() - 1));
+					}
+					AssignmentPN assign = new AssignmentPN(id.text, "=", toAssign);
 					assign.lineCol(line, col);
 					instructions.instructions.add(assign);
 				}

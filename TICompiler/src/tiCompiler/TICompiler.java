@@ -42,7 +42,7 @@ public class TICompiler {
 		MainLevelPN mainLevelParseNode = null;
 		try {
 			mainLevelParseNode = parser.parse(tokens);
-			//System.out.println(mainLevelParseNode);
+			System.out.println(mainLevelParseNode);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
