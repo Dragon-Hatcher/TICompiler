@@ -39,9 +39,9 @@ public class Copy {
 		return newSet;
 	}
 	
-	public static ArrayList<Integer> deepCopyArray(ArrayList<Integer> oldArray) {
-		ArrayList<Integer> newArray = new ArrayList<Integer>();
-		for(Integer val : oldArray) {
+	public static <T> ArrayList<T> deepCopyArray(ArrayList<T> oldArray) {
+		ArrayList<T> newArray = new ArrayList<T>();
+		for(T val : oldArray) {
 			newArray.add(val);
 		}
 		return newArray;

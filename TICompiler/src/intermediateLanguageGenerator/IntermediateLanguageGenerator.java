@@ -131,12 +131,12 @@ public class IntermediateLanguageGenerator {
 				}
 				ilNodes.add(new LabelILPN("then_" + name));
 				ilNodes.addAll(parseInstructionSequence(iIf.instructions, typeTemps, whileLoopName,
-						layersSinceWhile + 1, funcName, layersSinceFunc));
+						layersSinceWhile + 1, funcName, layersSinceFunc + 1));
 				ilNodes.add(new GotoILPN("endif_" + name));
 				if (iIf.elseInstructions != null) {
 					ilNodes.add(new LabelILPN("else_" + name));
 					ilNodes.addAll(parseInstructionSequence(iIf.elseInstructions, typeTemps, whileLoopName,
-							layersSinceWhile + 1, funcName, layersSinceFunc));
+							layersSinceWhile + 1, funcName, layersSinceFunc + 1));
 				}
 				ilNodes.add(new LabelILPN("endif_" + name));
 			} else if (i instanceof WhileLoopPN) {
@@ -150,12 +150,12 @@ public class IntermediateLanguageGenerator {
 
 				ilNodes.add(new LabelILPN("while_" + name));
 				ilNodes.addAll(
-						parseInstructionSequence(iWL.instructions, typeTemps, name, 1, funcName, layersSinceFunc));
+						parseInstructionSequence(iWL.instructions, typeTemps, name, 1, funcName, layersSinceFunc + 1));
 				ilNodes.add(new GotoILPN("condition_" + name));
 
 				ilNodes.add(new LabelILPN("endwhile_" + name));
 			} else if (i instanceof BreakPN) {
-				ilNodes.add(new CallCloseScopeILPN(layersSinceWhile - 1));
+				ilNodes.add(new CallCloseScopeILPN(layersSinceWhile));
 				ilNodes.add(new GotoILPN("endwhile_" + whileLoopName));
 			} else if (i instanceof ReturnStatementPN) {
 				ReturnStatementPN iR = (ReturnStatementPN) i;
@@ -165,7 +165,7 @@ public class IntermediateLanguageGenerator {
 					ilNodes.add(new ReturnValueILPN(tempName(typeTemps, iR.statement.type())));
 				}
 
-				ilNodes.add(new CallCloseScopeILPN(layersSinceFunc - 1));
+				ilNodes.add(new CallCloseScopeILPN(layersSinceFunc));
 				ilNodes.add(new GotoILPN("func_end_" + funcName));
 			} else {
 				throw new Exception("Don't know how to parse " + i.getClass());
@@ -228,12 +228,13 @@ public class IntermediateLanguageGenerator {
 		ArrayList<ILParseNode> ret = new ArrayList<ILParseNode>();
 
 		ret.add(new SetReturnVarToILPN(tempName(tempToPutResult, returnType)));
-		int paramNumber = 0;
+		ArrayList<String> previousTypes = new ArrayList<String>();
 		for (Evaluable e : eFC.params) {
 			typeTemps.put(e.type(), typeTemps.get(e.type()) + 1);
 			ret.addAll(parseExpression(e, typeTemps.get(e.type()), typeTemps));
-			ret.add(new SetParamToVarILPN(paramNumber++, tempName(typeTemps, e.type())));
+			ret.add(new SetParamToVarILPN(Copy.deepCopyArray(previousTypes), tempName(typeTemps, e.type()), e.type()));
 			typeTemps.put(e.type(), typeTemps.get(e.type()) - 1);
+			previousTypes.add(e.type());
 		}
 
 		ret.add(new CallILPN("func_start_" + (1 + functionNames.indexOf(eFC.functionName))));

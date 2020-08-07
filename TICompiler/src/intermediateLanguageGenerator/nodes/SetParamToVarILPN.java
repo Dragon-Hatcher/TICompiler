@@ -1,20 +1,23 @@
 package intermediateLanguageGenerator.nodes;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class SetParamToVarILPN extends ILParseNode {
 
-	int paramNumber;
-	String varToSetParamTo;
-
-	public SetParamToVarILPN(int paramNumber, String varToSetParamTo) {
-		this.paramNumber = paramNumber;
+	public String varToSetParamTo;
+	public String type;
+	public ArrayList<String> previousParams;
+	
+	public SetParamToVarILPN(ArrayList<String> previousParams, String varToSetParamTo, String type) {
+		this.previousParams = previousParams;
 		this.varToSetParamTo = varToSetParamTo;
+		this.type = type;
 	}
 
 	@Override
 	public String toString() {
-		return "Set param " + paramNumber + " to " + varToSetParamTo;
+		return "Set param after " + previousParams + " to " + varToSetParamTo;
 	}
 
 	@Override

@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class SetReturnVarToILPN extends ILParseNode {
 
-	String returnVar = "";
+	public String returnVar = "";
 	
 	public SetReturnVarToILPN(String returnVar) {
 		this.returnVar = returnVar;

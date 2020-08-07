@@ -104,17 +104,55 @@ public class CodeGenerator {
 
 			if (rDepth <= 0) {
 				if (ins instanceof SetReturnVarToILPN) {
-					//TODO
+					SetReturnVarToILPN insSRV = (SetReturnVarToILPN) ins;
+					String varName = findVariableName(insSRV.returnVar, section);
+					if (isMainVariable(insSRV.returnVar)) {
+						seqCode.append(" ld HL, s_area_stack_pointer + 2 \r\n");
+					} else {
+						seqCode.append(" ld HL, ((s_area_stack_pointer)) \r\n");
+					}
+					seqCode.append(" ld DE, " + varName + "\r\n" + 
+							" ADD HL, DE\r\n" + 
+							" ld (s_mem_stack_pointer), HL\r\n" + 
+							"");
 				} else if (ins instanceof SetParamToVarILPN) {
-					//TODO
+					SetParamToVarILPN insSPV = (SetParamToVarILPN) ins;
+					String varName = findVariableName(insSPV.varToSetParamTo, section);
+					if (isMainVariable(insSPV.varToSetParamTo)) {
+						seqCode.append(" ld HL, s_area_stack_pointer + 2 \r\n");
+					} else {
+						seqCode.append(" ld HL, (s_area_stack_pointer) \r\n");
+					}
+					seqCode.append(" ld DE, " + varName + "\r\n" + 
+							" ADD HL, DE\r\n" + 
+							" ld DE, HL\r\n");
+					seqCode.append(" ld HL, (s_mem_stack_pointer)\r\n");
+					int byteCount = 0;
+					for(String type : insSPV.previousParams) {
+						byteCount += typeSizes.get(type);
+					}
+					for(int j = 0; j < byteCount + 2; j++) {
+						seqCode.append(" INC HL\r\n");
+					}
+					for(int j = 0; j < typeSizes.get(insSPV.type); j++) {
+						seqCode.append(" ld BC, (DE)\r\n" +
+								" ld (HL), BC\r\n" +
+								" INC DE\r\n" + 
+								" INC HL\r\n");
+					}
 				} else if (ins instanceof SetILPN) {
-					//TODO
+					// TODO
 				} else if (ins instanceof ReturnValueILPN) {
-					//TODO
+					// TODO
 				} else if (ins instanceof CallILPN) {
-					seqCode.append(" call " + ((CallILPN)ins).funcToCall + "\r\n");
+					seqCode.append(" call " + ((CallILPN) ins).funcToCall + "\r\n");
 				} else if (ins instanceof CallCloseScopeILPN) {
-					//TODO
+					CallCloseScopeILPN insCCS = (CallCloseScopeILPN) ins;
+					for (int ccs = 0; ccs < insCCS.scopesToClose; ccs++) {
+						seqCode.append(" call close_scope_"
+								+ sectionCode(new ArrayList<Integer>(section.subList(0, section.size() - ccs)))
+								+ "\r\n");
+					}
 				} else if (ins instanceof CreateVariableILPN) {
 					CreateVariableILPN insCV = (CreateVariableILPN) ins;
 					vars.append("u_" + insCV.name + "_" + sectionCode(section) + " = " + myMemUse + "\r\n");
@@ -139,19 +177,25 @@ public class CodeGenerator {
 								+ " cp 1\r\n" + " jp Z, " + insGT.label + "\r\n" + "");
 					}
 				}
+				seqCode.append("\r\n");
 			}
 		}
 
-		startString.append(" ld HL, (s_mem_stack_pointer)\r\n" + " ADD HL, " + (myMemUse - memUse) + "\r\n"
-				+ " ld (s_mem_stack_pointer), HL\r\n" + "");
+		startString.append(" ld HL, (s_mem_stack_pointer)\r\n" + " ld DE, " + (myMemUse - memUse) + "\r\n"
+				+ " ADD HL, DE\r\n" + " ld (s_mem_stack_pointer), HL\r\n" + "");
 
 		seqCode.insert(0, startString);
-		
-		seqCode.append(" ld HL, (s_mem_stack_pointer)\r\n" + " SUB HL, " + (myMemUse - memUse) + "\r\n"
-				+ " ld (s_mem_stack_pointer), HL\r\n" + "");
+
+		// close scope
+		seqCode.append(
+				" call close_scope_" + sectionCode(section) + "\r\n" + " jp end_close_scope_" + sectionCode(section)
+						+ "\r\n" + "close_scope_" + sectionCode(section) + ":\r\n" + " ld HL, (s_mem_stack_pointer)\r\n"
+						+ " ld DE, " + (myMemUse - memUse) + "\r\n" + " SCF    ; Force carry = 1\r\n"
+						+ " CCF    ; Flip carry so it is \r\n" + " SBC HL, DE\r\n" + " ld (s_mem_stack_pointer), HL\r\n"
+						+ " ret\r\n" + "end_close_scope_" + sectionCode(section) + ":\r\n");
 
 		if (section.size() == 1) {
-			seqCode.append(" ld HL, (s_area_stack_pointer)\r\n" + " SUB HL, 2\r\n"
+			seqCode.append(" ld HL, (s_area_stack_pointer)\r\n" + " DEC HL\r\n" + " DEC HL\r\n"
 					+ " ld (s_area_stack_pointer), HL\r\n" + " ret\r\n\r\n");
 		}
 
