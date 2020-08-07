@@ -32,15 +32,19 @@
 //	}
 //}
 
-func fibN(int n) -> int {
-	if(n == 0 || n == 1 || n == 2) {
-		return 0;
-	}
-	return fibN(n - 1) + fibN(n - 2);
-}
+//func fibN(int n) -> int {
+//	if(n == 0 || n == 1 || n == 2) {
+//		return 0;
+//	}
+//	return fibN(n - 1) + fibN(n - 2);
+//}
+
 
 main {
-	fibN(5);
+	var x:bool = true;
+	if(x) {
+		x = false;
+	}
 }
 
 

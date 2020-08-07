@@ -12,6 +12,12 @@ public enum Register {
 	public void assertWord() throws Exception {
 		 if(this != Register.AF && this != Register.BC && this != Register.DE && this != Register.HL) {
 			 throw new Exception("Excpeted non HL word instead got " + this);
+		 }
+	}
+	
+	public void assertHL() throws Exception {
+		 if(this != Register.HL) {
+			 throw new Exception("Excpeted HL instead got " + this);
 		 }		
 	}
 	
