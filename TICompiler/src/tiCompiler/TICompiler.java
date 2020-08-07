@@ -5,7 +5,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import codeGeneration.CodeGenerator;
 import intermediateLanguageGenerator.IntermediateLanguageGenerator;
+import intermediateLanguageGenerator.nodes.MainLevelILPN;
 import lexer.Lexer;
 import lexer.Token;
 import lexer.UnableToLexCharacterException;
@@ -42,7 +44,7 @@ public class TICompiler {
 		MainLevelPN mainLevelParseNode = null;
 		try {
 			mainLevelParseNode = parser.parse(tokens);
-			System.out.println(mainLevelParseNode);
+			//System.out.println(mainLevelParseNode);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -55,11 +57,17 @@ public class TICompiler {
 		}
 		
 		IntermediateLanguageGenerator intermediateLanguageGenerator = new IntermediateLanguageGenerator();
+		MainLevelILPN mainLevelILParseNode = null;
 		try {
-			intermediateLanguageGenerator.generatorIL(mainLevelParseNode);
+			mainLevelILParseNode = intermediateLanguageGenerator.generatorIL(mainLevelParseNode);
+			System.out.println(mainLevelILParseNode);
+			System.out.println("------");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		CodeGenerator codeGenerator = new CodeGenerator();
+		System.out.println(codeGenerator.generateAssembly(mainLevelILParseNode));
 	}
 
 	public static String readFileAsString(String fileName) throws Exception {

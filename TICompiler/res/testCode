@@ -32,24 +32,15 @@
 //	}
 //}
 
-func plusOne(int num, int numtwo) -> int {
-	return num + numtwo + 1;
-}
-
-func test() {
+func fibN(int n) -> int {
+	if(n == 0 || n == 1 || n == 2) {
+		return 0;
+	}
+	return fibN(n - 1) + fibN(n - 2);
 }
 
 main {
-	var x:int = 1;
-	
-	while(x < 10) {
-		x = x + 1 + 1 + 2 + 3;
-		if(x == 2) {
-			break;
-		}
-	}
-
-	return;
+	fibN(5);
 }
 
 

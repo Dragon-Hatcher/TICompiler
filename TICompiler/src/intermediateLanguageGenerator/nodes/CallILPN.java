@@ -2,7 +2,7 @@ package intermediateLanguageGenerator.nodes;
 
 public class CallILPN extends ILParseNode {
 
-	String funcToCall;
+	public String funcToCall;
 
 	public CallILPN(String funcToCall) {
 		this.funcToCall = funcToCall;

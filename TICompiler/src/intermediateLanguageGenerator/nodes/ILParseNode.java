@@ -10,7 +10,7 @@ public abstract class ILParseNode {
 	}
 	
 	public boolean isTemp(String temp) {
-		return temp.startsWith("$_temp");
+		return temp.startsWith("s_temp");
 	}
 	
 	public String getTempType(String temp) {

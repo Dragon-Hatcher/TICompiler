@@ -2,8 +2,8 @@ package intermediateLanguageGenerator.nodes;
 
 public class CreateVariableILPN extends ILParseNode {
 
-	String name;
-	String type;
+	public String name;
+	public String type;
 	
 	public CreateVariableILPN(String name, String type) {
 		this.name = name;

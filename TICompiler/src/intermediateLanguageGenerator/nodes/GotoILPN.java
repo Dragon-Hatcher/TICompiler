@@ -2,8 +2,8 @@ package intermediateLanguageGenerator.nodes;
 
 public class GotoILPN extends ILParseNode {
 	
-	String label = "";
-	String ifVar = "";
+	public String label = "";
+	public String ifVar = "";
 	
 	public GotoILPN(String label, String ifVar) {
 		this.label = label;

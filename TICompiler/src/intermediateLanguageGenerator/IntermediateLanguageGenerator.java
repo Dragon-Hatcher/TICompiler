@@ -13,12 +13,18 @@ public class IntermediateLanguageGenerator {
 	MainLevelPN mainPN = new MainLevelPN();
 	MainLevelILPN main = new MainLevelILPN();
 
+	ArrayList<String> functionNames = new ArrayList<String>();
+	
 	private int uniqueNameCount = 0;
 	private int functionNameCount = 1;
 
 	public MainLevelILPN generatorIL(MainLevelPN mainLevelPN) throws Exception {
 		mainPN = mainLevelPN;
 
+		for (FunctionDeclerationPN func : mainPN.functions) {
+			functionNames.add(func.name);
+		}
+		
 		Map<String, Integer> typeTemps = new HashMap<String, Integer>();
 		typeTemps.put("int", 0);
 		typeTemps.put("float", 0);
@@ -58,7 +64,6 @@ public class IntermediateLanguageGenerator {
 			}
 		}
 
-		System.out.println(main);
 		return main;
 	}
 
@@ -72,7 +77,7 @@ public class IntermediateLanguageGenerator {
 		ilNodes.addAll(parseInstructionSequence(func.instructions, typeTemps, -1, -1, name, 1));
 
 		ArrayList<ILParseNode> params = new ArrayList<ILParseNode>();
-		params.add(new CreateVariableILPN("$return_adress_" + name, "int"));
+		params.add(new CreateVariableILPN("sreturn_adress_" + name, "int"));
 		for (VariableDeclerationPN param : func.parameters) {
 			params.add(new CreateVariableILPN(param.name, param.type));
 		}
@@ -121,6 +126,8 @@ public class IntermediateLanguageGenerator {
 				ilNodes.add(new GotoILPN("then_" + name, tempName(typeTemps.get("bool"), "bool")));
 				if (iIf.elseInstructions != null) {
 					ilNodes.add(new GotoILPN("else_" + name));
+				} else {
+					ilNodes.add(new GotoILPN("endif_" + name));					
 				}
 				ilNodes.add(new LabelILPN("then_" + name));
 				ilNodes.addAll(parseInstructionSequence(iIf.instructions, typeTemps, whileLoopName,
@@ -148,9 +155,7 @@ public class IntermediateLanguageGenerator {
 
 				ilNodes.add(new LabelILPN("endwhile_" + name));
 			} else if (i instanceof BreakPN) {
-				for (int j = 0; j < layersSinceWhile; j++) {
-					ilNodes.add(new CallCloseScopeILPN());
-				}
+				ilNodes.add(new CallCloseScopeILPN(layersSinceWhile - 1));
 				ilNodes.add(new GotoILPN("endwhile_" + whileLoopName));
 			} else if (i instanceof ReturnStatementPN) {
 				ReturnStatementPN iR = (ReturnStatementPN) i;
@@ -160,9 +165,7 @@ public class IntermediateLanguageGenerator {
 					ilNodes.add(new ReturnValueILPN(tempName(typeTemps, iR.statement.type())));
 				}
 
-				for (int j = 0; j < layersSinceFunc; j++) {
-					ilNodes.add(new CallCloseScopeILPN());
-				}
+				ilNodes.add(new CallCloseScopeILPN(layersSinceFunc - 1));
 				ilNodes.add(new GotoILPN("func_end_" + funcName));
 			} else {
 				throw new Exception("Don't know how to parse " + i.getClass());
@@ -179,15 +182,15 @@ public class IntermediateLanguageGenerator {
 		ArrayList<ILParseNode> ret = new ArrayList<ILParseNode>();
 		if (evaluable instanceof NumLitteralPN) {
 			NumILPN num = new NumILPN(((NumLitteralPN) evaluable).num);
-			ret.add(new SetILPN("$_temp" + tempToPutResult + "_" + ((NumLitteralPN) evaluable).type(), num));
+			ret.add(new SetILPN("s_temp" + tempToPutResult + "_" + ((NumLitteralPN) evaluable).type(), num));
 			return ret;
 		} else if (evaluable instanceof BooleanLitteralPN) {
 			BoolILPN bool = new BoolILPN(((BooleanLitteralPN) evaluable).trueOrFalse);
-			ret.add(new SetILPN("$_temp" + tempToPutResult + "_bool", bool));
+			ret.add(new SetILPN("s_temp" + tempToPutResult + "_bool", bool));
 			return ret;
 		} else if (evaluable instanceof VariableUsePN) {
 			VarUseILPN var = new VarUseILPN(((VariableUsePN) evaluable).name);
-			ret.add(new SetILPN("$_temp" + tempToPutResult + "_" + ((VariableUsePN) evaluable).type(), var));
+			ret.add(new SetILPN("s_temp" + tempToPutResult + "_" + ((VariableUsePN) evaluable).type(), var));
 			return ret;
 		} else if (evaluable instanceof BinaryExpressionPN) {
 			BinaryExpressionPN eBinary = ((BinaryExpressionPN) evaluable);
@@ -233,17 +236,17 @@ public class IntermediateLanguageGenerator {
 			typeTemps.put(e.type(), typeTemps.get(e.type()) - 1);
 		}
 
-		ret.add(new CallILPN(eFC.functionName));
+		ret.add(new CallILPN("func_start_" + (1 + functionNames.indexOf(eFC.functionName))));
 
 		return ret;
 	}
 
 	private Map<String, Integer> findTemps(ArrayList<ILParseNode> code, int start, int end,
 			Map<String, Integer> superUses) {
-
-		System.err.println(">>" + start + ", " + end);
 		
 		Map<String, Integer> myUses = Copy.deepCopyMapSI(superUses);
+
+//		System.out.println("---s");
 		
 		int depthCount = 0;
 		for(int i = start; i < end; i++) {
@@ -261,9 +264,11 @@ public class IntermediateLanguageGenerator {
 		ArrayList<ILParseNode> newVars = new ArrayList<ILParseNode>();
 		for(String type : superUses.keySet()) {
 			for(int i = superUses.get(type); i < myUses.get(type); i++) {
-				newVars.add(new CreateVariableILPN("$_temp" + i + "_" + type, type));
+//				System.out.println(superUses + " " + "s_temp" + i + "_" + type);
+				newVars.add(new CreateVariableILPN("s_temp" + i + "_" + type, type));
 			}
 		}
+//		System.out.println(">> " + newVars);
 		
 		int rStart = 0;
 		int rEnd = 0;
@@ -275,19 +280,26 @@ public class IntermediateLanguageGenerator {
 				rDepthCount--;
 			}
 			
+//			System.out.println(i + ": (" + end + ") " + rDepthCount + "; " + code.get(i));
+			
 			if(rDepthCount == 1 && (code.get(i) instanceof OpenScopeILPN)) {
-				System.err.println(i + 1);
-				System.err.println(newVars);
 				code.addAll(i + 1, newVars);
+//				System.out.println(">>>> " + newVars);
 			}
 			
 			if(rDepthCount == 2 && code.get(i) instanceof OpenScopeILPN) {
 				rStart = i;
 			} else if(rDepthCount == 2 && code.get(i) instanceof CloseScopeILPN) {
 				rEnd = i;
-				findTemps(code, rStart, rEnd, myUses);
+				int oldLength = code.size();
+				findTemps(code, rStart, rEnd + 1, myUses);
+				i += code.size() - oldLength;
+				end += code.size() - oldLength;
 			}
+			
 		}
+		
+//		System.out.println("---e");
 		
 		return myUses;
 	}
@@ -301,11 +313,11 @@ public class IntermediateLanguageGenerator {
 	}
 
 	private String tempName(Map<String, Integer> typeTemps, String type) {
-		return "$_temp" + typeTemps.get(type) + "_" + type;
+		return "s_temp" + typeTemps.get(type) + "_" + type;
 	}
 
 	private String tempName(int tempNum, String type) {
-		return "$_temp" + tempNum + "_" + type;
+		return "s_temp" + tempNum + "_" + type;
 	}
 
 }

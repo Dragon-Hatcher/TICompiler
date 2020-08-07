@@ -1,5 +1,6 @@
 package toolkit;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,6 +37,14 @@ public class Copy {
 			newSet.add(val);
 		}
 		return newSet;
+	}
+	
+	public static ArrayList<Integer> deepCopyArray(ArrayList<Integer> oldArray) {
+		ArrayList<Integer> newArray = new ArrayList<Integer>();
+		for(Integer val : oldArray) {
+			newArray.add(val);
+		}
+		return newArray;
 	}
 
 }
