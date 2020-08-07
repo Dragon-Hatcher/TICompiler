@@ -41,9 +41,14 @@
 
 
 main {
-	var x:bool = true;
+	var x:bool = false;
 	if(x) {
 		x = false;
+	} else {
+		x = true;
+	}
+	if(x) {
+		
 	}
 }
 

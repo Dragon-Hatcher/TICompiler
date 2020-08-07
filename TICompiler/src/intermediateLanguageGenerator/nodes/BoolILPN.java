@@ -5,7 +5,7 @@ public class BoolILPN extends ILParseNode implements ILEvaluable {
 	public boolean trueOrFalse;
 	
 	public BoolILPN(String trueOrFalse) {
-		this.trueOrFalse = Boolean.getBoolean(trueOrFalse);
+		this.trueOrFalse = trueOrFalse.equals("true");
 	}
 
 	@Override

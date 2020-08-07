@@ -175,8 +175,8 @@ public class CodeGenerator {
 					if (insGT.ifVar.equals("")) {
 						seqCode.append(" jp " + insGT.label + "\r\n");
 					} else {
-						seqCode.append(getVarInRegister(insGT.ifVar, section, Register.DE));	
-						seqCode.append(" ld A, (DE)\r\n");
+						seqCode.append(getVarInRegisterHL(insGT.ifVar, section, Register.DE));	
+						seqCode.append(" ld A, (HL)\r\n");
 						seqCode.append(" cp 1\r\n");
 						seqCode.append(" jp Z, " + insGT.label + "\r\n");
 					}
@@ -253,6 +253,25 @@ public class CodeGenerator {
 		
 		return ret.toString();
 	}
+
+	//Destroys: HL, Gives var pointer in reg
+	private String getVarInRegisterHL(String rawVarName, ArrayList<Integer> section, Register reg) throws Exception {
+		reg.assertNotHLWord();
+		
+		StringBuilder ret = new StringBuilder();
+
+		String varName = findVariableName(rawVarName, section);
+		if (isMainVariable(rawVarName)) {
+			ret.append(" ld HL, s_area_stack_pointer + 2 \r\n");
+		} else {
+			ret.append(" ld HL, (s_area_stack_pointer) \r\n");
+		}
+		ret.append(" ld " + reg + ", " + varName + "\r\n" + 
+				" ADD HL, " + reg + "\r\n");
+		
+		return ret.toString();
+	}
+
 	
 	private String loadRegister(Register destination, Register source) throws Exception {
 		if(destination.isWord() && source.isWord()) {
