@@ -110,7 +110,7 @@ public class IntermediateLanguageGenerator {
 						typeTemps);
 				ilNodes.addAll(toAssignInstructions);
 				VarUseILPN result = new VarUseILPN(tempName(typeTemps, varType));
-				ilNodes.add(new SetILPN(iA.varName, result));
+				ilNodes.add(new SetILPN(iA.varName, result, iA.toAssign.type()));
 			} else if (i instanceof FunctionCallPN) {
 				if (((FunctionCallPN) i).type().equals("")) {
 					ilNodes.addAll(functionCallInstructions((Evaluable) i, 0, typeTemps));
@@ -182,15 +182,15 @@ public class IntermediateLanguageGenerator {
 		ArrayList<ILParseNode> ret = new ArrayList<ILParseNode>();
 		if (evaluable instanceof NumLitteralPN) {
 			NumILPN num = new NumILPN(((NumLitteralPN) evaluable).num);
-			ret.add(new SetILPN("s_temp" + tempToPutResult + "_" + ((NumLitteralPN) evaluable).type(), num));
+			ret.add(new SetILPN("s_temp" + tempToPutResult + "_" + ((NumLitteralPN) evaluable).type(), num, ((NumLitteralPN) evaluable).type()));
 			return ret;
 		} else if (evaluable instanceof BooleanLitteralPN) {
 			BoolILPN bool = new BoolILPN(((BooleanLitteralPN) evaluable).trueOrFalse);
-			ret.add(new SetILPN("s_temp" + tempToPutResult + "_bool", bool));
+			ret.add(new SetILPN("s_temp" + tempToPutResult + "_bool", bool, "bool"));
 			return ret;
 		} else if (evaluable instanceof VariableUsePN) {
 			VarUseILPN var = new VarUseILPN(((VariableUsePN) evaluable).name);
-			ret.add(new SetILPN("s_temp" + tempToPutResult + "_" + ((VariableUsePN) evaluable).type(), var));
+			ret.add(new SetILPN("s_temp" + tempToPutResult + "_" + ((VariableUsePN) evaluable).type(), var, ((VariableUsePN) evaluable).type()));
 			return ret;
 		} else if (evaluable instanceof BinaryExpressionPN) {
 			BinaryExpressionPN eBinary = ((BinaryExpressionPN) evaluable);
@@ -207,7 +207,7 @@ public class IntermediateLanguageGenerator {
 			ret.addAll(parseExpression(eBinary.right, typeTemps.get(operandsType), typeTemps));
 
 			ret.add(new SetResultILPN(tempName(tempToPutResult, resultType), leftVar, rightVar,
-					Ops.fromPNOp(eBinary.op)));
+					Ops.fromPNOp(eBinary.op), eBinary.left.type()));
 
 			typeTemps.put(operandsType, typeTemps.get(operandsType) - 2);
 

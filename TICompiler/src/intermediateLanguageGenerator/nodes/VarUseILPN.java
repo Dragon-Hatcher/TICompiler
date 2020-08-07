@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class VarUseILPN extends ILParseNode implements ILEvaluable {
 
-	String name = "";
+	public String name = "";
 
 	public VarUseILPN(String name) {
 		this.name = name;

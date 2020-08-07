@@ -4,12 +4,14 @@ import java.util.Map;
 
 public class SetILPN extends ILParseNode {
 
-	String sete = "";
-	ILEvaluable seter;
+	public String sete = "";
+	public String type;
+	public ILEvaluable seter;
 
-	public SetILPN(String sete, ILEvaluable seter) {
+	public SetILPN(String sete, ILEvaluable seter, String type) {
 		this.sete = sete;
 		this.seter = seter;
+		this.type = type;
 	}
 
 	@Override

@@ -4,16 +4,18 @@ import java.util.Map;
 
 public class SetResultILPN extends ILParseNode {
 
-	String sete;
-	ILEvaluable left;
-	ILEvaluable right;
-	Ops operator;
+	public String sete;
+	public ILEvaluable left;
+	public ILEvaluable right;
+	public String lrTypes;
+	public Ops operator;
 
-	public SetResultILPN(String sete, ILEvaluable left, ILEvaluable right, Ops operator) {
+	public SetResultILPN(String sete, ILEvaluable left, ILEvaluable right, Ops operator, String lrTypes) {
 		this.sete = sete;
 		this.left = left;
 		this.right = right;
 		this.operator = operator;
+		this.lrTypes = lrTypes;
 	}
 
 	@Override

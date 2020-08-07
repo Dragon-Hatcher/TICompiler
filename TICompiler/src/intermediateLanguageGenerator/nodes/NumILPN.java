@@ -2,7 +2,7 @@ package intermediateLanguageGenerator.nodes;
 
 public class NumILPN extends ILParseNode implements ILEvaluable {
 
-	String num = "";
+	public String num = "";
 	
 	public NumILPN(String num) {
 		this.num = num;

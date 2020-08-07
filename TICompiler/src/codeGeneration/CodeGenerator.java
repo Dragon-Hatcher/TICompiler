@@ -24,6 +24,7 @@ public class CodeGenerator {
 
 	public CodeGenerator() {
 		typeSizes.put("int", 2);
+		typeSizes.put("$pointer", 2);
 		typeSizes.put("char", 1);
 		typeSizes.put("bool", 1);
 	}
@@ -105,58 +106,57 @@ public class CodeGenerator {
 			if (rDepth <= 0) {
 				if (ins instanceof SetReturnVarToILPN) {
 					SetReturnVarToILPN insSRV = (SetReturnVarToILPN) ins;
-					String varName = findVariableName(insSRV.returnVar, section);
-					if (isMainVariable(insSRV.returnVar)) {
-						seqCode.append(" ld HL, s_area_stack_pointer + 2 \r\n");
-					} else {
-						seqCode.append(" ld HL, ((s_area_stack_pointer)) \r\n");
-					}
-					seqCode.append(" ld DE, " + varName + "\r\n" + 
-							" ADD HL, DE\r\n" + 
-							" ld (s_mem_stack_pointer), HL\r\n" + 
-							"");
+					seqCode.append(getVarInRegister(insSRV.returnVar, section, Register.DE));						
+					seqCode.append(" ld HL, (s_mem_stack_pointer)\r\n");
+					seqCode.append(" ld (HL), E\r\n");
+					seqCode.append(" INC HL\r\n");
+					seqCode.append(" ld (HL), D\r\n");
 				} else if (ins instanceof SetParamToVarILPN) {
 					SetParamToVarILPN insSPV = (SetParamToVarILPN) ins;
-					String varName = findVariableName(insSPV.varToSetParamTo, section);
-					if (isMainVariable(insSPV.varToSetParamTo)) {
-						seqCode.append(" ld HL, s_area_stack_pointer + 2 \r\n");
-					} else {
-						seqCode.append(" ld HL, (s_area_stack_pointer) \r\n");
-					}
-					seqCode.append(" ld DE, " + varName + "\r\n" + 
-							" ADD HL, DE\r\n" + 
-							" ld DE, HL\r\n");
+					seqCode.append(getVarInRegister(insSPV.varToSetParamTo, section, Register.DE));						
 					seqCode.append(" ld HL, (s_mem_stack_pointer)\r\n");
-					int byteCount = 0;
-					for(String type : insSPV.previousParams) {
+					
+					int byteCount = typeSizes.get("$pointer");
+					for (String type : insSPV.previousParams) {
 						byteCount += typeSizes.get(type);
 					}
-					for(int j = 0; j < byteCount + 2; j++) {
-						seqCode.append(" INC HL\r\n");
-					}
-					for(int j = 0; j < typeSizes.get(insSPV.type); j++) {
-						seqCode.append(" ld BC, (DE)\r\n" +
-								" ld (HL), BC\r\n" +
-								" INC DE\r\n" + 
-								" INC HL\r\n");
-					}
+					
+					seqCode.append(" ld BC, " + byteCount + "\r\n");					
+					seqCode.append(" ADD HL, BC");
+					seqCode.append(loadTypeFromPointerToPointer(insSPV.type, Register.DE, Register.HL));
+
+				} else if (ins instanceof SetResultILPN) {
+					
 				} else if (ins instanceof SetILPN) {
-					// TODO
-				} else if (ins instanceof ReturnValueILPN) {
-					ReturnValueILPN insR = (ReturnValueILPN)ins;
-					String varName = findVariableName("s_return_adress", section);					
-					seqCode.append(" ld HL, (s_area_stack_pointer)\r\n");
-					seqCode.append(" ld DE, " + varName + "\r\n" + 
-							" ADD HL, DE\r\n" + 
-							" ld DE, HL\r\n");
-					seqCode.append(" ld HL, (" + varName + ")\r\n");
-					for(int j = 0; j < typeSizes.get(insR.type); j++) {
-						seqCode.append(" ld BC, (DE)\r\n" +
-								" ld (HL), BC\r\n" +
-								" INC DE\r\n" + 
-								" INC HL\r\n");						
+					SetILPN insS = (SetILPN) ins;
+					seqCode.append(getVarInRegister(insS.sete, section, Register.DE));						
+					if(insS.seter instanceof BoolILPN) {
+						seqCode.append(loadRegister(Register.HL, Register.DE));
+						seqCode.append(" ld (HL), " + (((BoolILPN)insS.seter).trueOrFalse ? 1 : 0) + "\r\n");
+					} else if(insS.seter instanceof NumILPN) {
+						seqCode.append(loadRegister(Register.HL, Register.DE));
+						seqCode.append(" ld DE, " + Integer.parseInt(((NumILPN)insS.seter).num) + "\r\n");
+						seqCode.append(" ld (HL), E\r\n");
+						seqCode.append(" INC HL\r\n");
+						seqCode.append(" ld (HL), D\r\n");
+					} else if(insS.seter instanceof VarUseILPN) {
+						VarUseILPN seterVU = (VarUseILPN)insS.seter;
+						seqCode.append(getVarInRegister(seterVU.name, section, Register.BC));						
+						seqCode.append(loadRegister(Register.HL, Register.DE));
+						seqCode.append(loadTypeFromPointerToPointer(insS.type, Register.BC, Register.HL));
+					} else {
+						throw new Exception("Can't parse ILEvaluable");
 					}
- 				} else if (ins instanceof CallILPN) {
+					
+				} else if (ins instanceof ReturnValueILPN) {
+					ReturnValueILPN insR = (ReturnValueILPN) ins;
+				
+					seqCode.append(getVarInRegister("s_return_adress", section, Register.DE));	
+					seqCode.append(indirectRegisterIntoSelf(Register.DE, Register.BC));
+					seqCode.append(getVarInRegister(insR.varToReturn, section, Register.BC));	
+					seqCode.append(loadTypeFromPointerToPointer(insR.type, Register.BC, Register.DE));
+
+				} else if (ins instanceof CallILPN) {
 					seqCode.append(" call " + ((CallILPN) ins).funcToCall + "\r\n");
 				} else if (ins instanceof CallCloseScopeILPN) {
 					CallCloseScopeILPN insCCS = (CallCloseScopeILPN) ins;
@@ -171,25 +171,19 @@ public class CodeGenerator {
 					myMemUse += typeSizes.get(insCV.type);
 					myVars.add(insCV.name);
 				} else if (ins instanceof LabelILPN) {
-					System.err.println(((LabelILPN) ins).label + ":\r\n");
 					seqCode.append(((LabelILPN) ins).label + ":\r\n");
-					System.err.println(seqCode);
 				} else if (ins instanceof GotoILPN) {
 					GotoILPN insGT = (GotoILPN) ins;
 					if (insGT.ifVar.equals("")) {
 						seqCode.append(" jp " + insGT.label + "\r\n");
 					} else {
-						String varName = findVariableName(insGT.ifVar, section);
-						if (isMainVariable(insGT.ifVar)) {
-							seqCode.append(" ld HL, s_area_stack_pointer + 2 \r\n");
-						} else {
-							seqCode.append(" ld HL, ((s_area_stack_pointer)) \r\n");
-						}
-						seqCode.append(" ld DE, " + varName + "\r\n" + " ADD HL, DE\r\n" + " ld A, (HL)\r\n"
-								+ " cp 1\r\n" + " jp Z, " + insGT.label + "\r\n" + "");
+						seqCode.append(getVarInRegister(insGT.ifVar, section, Register.DE));	
+						seqCode.append(" ld A, (DE)\r\n");
+						seqCode.append(" cp 1\r\n");
+						seqCode.append(" jp Z, " + insGT.label + "\r\n");
 					}
 				}
-				seqCode.append("\r\n");
+				seqCode.append(";---------\r\n");
 			}
 		}
 
@@ -228,11 +222,11 @@ public class CodeGenerator {
 		ArrayList<Integer> zero = new ArrayList<Integer>();
 		zero.add(0);
 		if (sectionVars.get(zero).contains(varName)) {
-			return varName + "_0";
+			return "u_" + varName + "_0";
 		} else {
 			for (int i = mySection.size(); i >= 1; i--) {
 				if (sectionVars.get(mySection.subList(0, i)).contains(varName)) {
-					return varName + "_" + sectionCode(new ArrayList<Integer>(mySection.subList(0, i)));
+					return "u_" + varName + "_" + sectionCode(new ArrayList<Integer>(mySection.subList(0, i)));
 				}
 			}
 		}
@@ -243,5 +237,62 @@ public class CodeGenerator {
 		ArrayList<Integer> zero = new ArrayList<Integer>();
 		zero.add(0);
 		return sectionVars.get(zero).contains(varName);
+	}
+	
+	//Destroys: HL, Gives var pointer in reg
+	private String getVarInRegister(String rawVarName, ArrayList<Integer> section, Register reg) throws Exception {
+		reg.assertNotHLWord();
+		
+		StringBuilder ret = new StringBuilder();
+
+		String varName = findVariableName(rawVarName, section);
+		if (isMainVariable(rawVarName)) {
+			ret.append(" ld HL, s_area_stack_pointer + 2 \r\n");
+		} else {
+			ret.append(" ld HL, (s_area_stack_pointer) \r\n");
+		}
+		ret.append(" ld " + reg + ", " + varName + "\r\n" + 
+				" ADD HL, " + reg + "\r\n" + 
+				loadRegister(reg, Register.HL));
+		
+		return ret.toString();
+	}
+	
+	private String loadRegister(Register destination, Register source) throws Exception {
+		if(destination.isWord() && source.isWord()) {
+			return " ld " + destination.high() + ", " + source.high() + "\r\n" + " ld " + destination.low() + ", " + source.low() + "\r\n";
+		} else {
+			return " ld " + destination + ", " + source + "\r\n";
+		}
+	}
+
+	//destroys A
+	private String loadTypeFromPointerToPointer(String type, Register source, Register destination) throws Exception {
+		source.assertWord();
+		destination.assertWord();
+		
+		StringBuilder ret = new StringBuilder();
+		
+		int count = typeSizes.get(type);
+		for(int i = 0; i < count; i++) {
+			ret.append(" ld A, (" + source + ")\r\n");
+			ret.append(" ld (" + destination + "), A\r\n");
+			ret.append(" INC " + source + "\r\n");
+			ret.append(" INC " + destination + "\r\n");
+		}
+		
+		return ret.toString();
+	}
+	
+	//destroys a, using
+	private String indirectRegisterIntoSelf(Register toIndirect, Register using) {
+		StringBuilder ret = new StringBuilder();
+		ret.append("ld A, (" + toIndirect + ")\r\n");
+		ret.append("ld " + using.low() + ", A\r\n");
+		ret.append("INC " + toIndirect + "\r\n");
+		ret.append("ld A, (" + toIndirect + ")\r\n");
+		ret.append("ld " + using.high() + ", A\r\n");
+		ret.append("ld " + toIndirect + ", " + using + "\r\n");
+		return ret.toString();
 	}
 }
