@@ -143,8 +143,20 @@ public class CodeGenerator {
 				} else if (ins instanceof SetILPN) {
 					// TODO
 				} else if (ins instanceof ReturnValueILPN) {
-					// TODO
-				} else if (ins instanceof CallILPN) {
+					ReturnValueILPN insR = (ReturnValueILPN)ins;
+					String varName = findVariableName("s_return_adress", section);					
+					seqCode.append(" ld HL, (s_area_stack_pointer)\r\n");
+					seqCode.append(" ld DE, " + varName + "\r\n" + 
+							" ADD HL, DE\r\n" + 
+							" ld DE, HL\r\n");
+					seqCode.append(" ld HL, (" + varName + ")\r\n");
+					for(int j = 0; j < typeSizes.get(insR.type); j++) {
+						seqCode.append(" ld BC, (DE)\r\n" +
+								" ld (HL), BC\r\n" +
+								" INC DE\r\n" + 
+								" INC HL\r\n");						
+					}
+ 				} else if (ins instanceof CallILPN) {
 					seqCode.append(" call " + ((CallILPN) ins).funcToCall + "\r\n");
 				} else if (ins instanceof CallCloseScopeILPN) {
 					CallCloseScopeILPN insCCS = (CallCloseScopeILPN) ins;

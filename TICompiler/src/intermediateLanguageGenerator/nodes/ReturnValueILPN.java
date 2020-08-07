@@ -4,10 +4,12 @@ import java.util.Map;
 
 public class ReturnValueILPN extends ILParseNode {
 
-	String varToReturn = "";
+	public String varToReturn = "";
+	public String type;
 
-	public ReturnValueILPN(String varToReturn) {
+	public ReturnValueILPN(String varToReturn, String type) {
 		this.varToReturn = varToReturn;
+		this.type = type;
 	}
 
 	@Override

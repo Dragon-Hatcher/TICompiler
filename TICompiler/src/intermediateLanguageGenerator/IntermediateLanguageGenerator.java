@@ -77,11 +77,11 @@ public class IntermediateLanguageGenerator {
 		ilNodes.addAll(parseInstructionSequence(func.instructions, typeTemps, -1, -1, name, 1));
 
 		ArrayList<ILParseNode> params = new ArrayList<ILParseNode>();
-		params.add(new CreateVariableILPN("sreturn_adress_" + name, "int"));
+		params.add(new CreateVariableILPN("s_return_adress", "int"));
 		for (VariableDeclerationPN param : func.parameters) {
 			params.add(new CreateVariableILPN(param.name, param.type));
 		}
-		ilNodes.addAll(2, params);
+		ilNodes.addAll(3, params);
 		ilNodes.add(new LabelILPN("func_end_" + name));
 		ilNodes.add(new CloseAreaILPN());
 
@@ -162,7 +162,7 @@ public class IntermediateLanguageGenerator {
 
 				if (iR.statement != null) {
 					ilNodes.addAll(parseExpression(iR.statement, typeTemps.get(iR.statement.type()), typeTemps));
-					ilNodes.add(new ReturnValueILPN(tempName(typeTemps, iR.statement.type())));
+					ilNodes.add(new ReturnValueILPN(tempName(typeTemps, iR.statement.type()), iR.statement.type()));
 				}
 
 				ilNodes.add(new CallCloseScopeILPN(layersSinceFunc));
