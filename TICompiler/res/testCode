@@ -39,16 +39,15 @@
 //	return fibN(n - 1) + fibN(n - 2);
 //}
 
+func test() {
+	x = true;
+}
 
 main {
 	var x:bool = false;
+	test();
 	if(x) {
-		x = false;
-	} else {
-		x = true;
-	}
-	if(x) {
-		
+	
 	}
 }
 

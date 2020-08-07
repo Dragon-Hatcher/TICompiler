@@ -227,7 +227,7 @@ public class IntermediateLanguageGenerator {
 
 		ArrayList<ILParseNode> ret = new ArrayList<ILParseNode>();
 
-		ret.add(new SetReturnVarToILPN(tempName(tempToPutResult, returnType)));
+		ret.add(new SetReturnVarToILPN(tempName(tempToPutResult, returnType.equals("") ? "bool" : returnType)));
 		ArrayList<String> previousTypes = new ArrayList<String>();
 		for (Evaluable e : eFC.params) {
 			typeTemps.put(e.type(), typeTemps.get(e.type()) + 1);
@@ -256,7 +256,7 @@ public class IntermediateLanguageGenerator {
 			} else if(code.get(i) instanceof CloseScopeILPN) {
 				depthCount--;
 			}
-
+			
 			if(depthCount == 1) {
 				code.get(i).updateHighestUsedTemp(myUses);
 			}
