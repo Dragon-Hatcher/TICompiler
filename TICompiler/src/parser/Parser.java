@@ -182,6 +182,10 @@ public class Parser {
 					assign.lineCol(line, col);
 					instructions.instructions.add(assign);
 				}
+			} else if (isKw("print")) {
+				instructions.instructions.add(new PrintPN());
+				eatToken(new Token("print", TokenType.KEYWORD));
+				eatToken(new Token(";", TokenType.SEPERATOR));
 			} else if (isKw("var")) {
 				instructions.instructions.addAll(parseVarDecleration(new Token(";", TokenType.SEPERATOR)));
 			} else if (isKw("if")) {

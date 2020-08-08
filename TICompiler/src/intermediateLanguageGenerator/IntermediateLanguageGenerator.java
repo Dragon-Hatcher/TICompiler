@@ -167,6 +167,8 @@ public class IntermediateLanguageGenerator {
 
 				ilNodes.add(new CallCloseScopeILPN(layersSinceFunc));
 				ilNodes.add(new GotoILPN("func_end_" + funcName));
+			} else if (i instanceof PrintPN){
+				ilNodes.add(new PrintILPN());
 			} else {
 				throw new Exception("Don't know how to parse " + i.getClass());
 			}
