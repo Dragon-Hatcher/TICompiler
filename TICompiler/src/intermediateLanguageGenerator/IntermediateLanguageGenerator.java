@@ -77,7 +77,7 @@ public class IntermediateLanguageGenerator {
 		ilNodes.addAll(parseInstructionSequence(func.instructions, typeTemps, -1, -1, name, 1));
 
 		ArrayList<ILParseNode> params = new ArrayList<ILParseNode>();
-		params.add(new CreateVariableILPN("s_return_adress", "int"));
+		params.add(new CreateVariableILPN("s_return_adress", "$pointer"));
 		for (VariableDeclerationPN param : func.parameters) {
 			params.add(new CreateVariableILPN(param.name, param.type));
 		}

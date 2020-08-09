@@ -1,55 +1,41 @@
-//func add(int intX, int intY, int z) -> int {
-//	return x + intX + intY + z;
-//}
-//
-//func test() -> void {
-//	return;
-//}
-//
-//main {
-//
-//	var x:int = 1;
-//	x += 1;
-//	
-//	x = 1 + 2 * 3 + 6 / 2;
-//	
-//	//check if x is equals to 2 if so add 3.156 and 5 to it
-//	if(x == 2 && true) {
-//		var z:int = 33;
-//		x = add(x, z, 3);
-//	} else if (x > 10) {
-//		x -= 10;
-//	} else {
-//		x -= 3;
-//	}
-//	
-//	if(true) {
-//	}
-//	
-//	while(x < 100) {
-//		x += 1;
-//		break;
-//	}
-//}
-
-//func fibN(int n) -> int {
-//	if(n == 0 || n == 1 || n == 2) {
-//		return 0;
-//	}
-//	return fibN(n - 1) + fibN(n - 2);
-//}
-
-func test() {
-	x = true;
-}
-
-main {
-	var x:bool = false;
-	test();
-	if(x) {
-	
+func swap() {
+	if(a) {
+		a = false;
+		ax = true;
+	} else if(b) {
+		b = false;
+		bx = true;
+	} else if(c) {
+		c = false;
+		cx = true;
+	} else if(d) {
+		d = false;
+		dx = true;
 	}
 }
 
+main {
 
+  var a:bool = true;
+  var b:bool = true;
+  var c:bool = true;
+  var d:bool = true;
+  var ax:bool = false;
+  var bx:bool = false;
+  var cx:bool = false;
+  var dx:bool = false;
 
+	while(true) {
+		print;
+		if(ax) {
+			if(bx) {
+				if(cx) {
+					if(dx) {
+						break;
+					}
+				}
+			}
+		}
+		swap();
+	}
+}
