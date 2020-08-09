@@ -9,7 +9,7 @@ import langaugeConstructs.TokenValues;
 public class Lexer {
 
 	private static final String matchKeywordsIdentifiers = "[A-Za-z]*";
-	private static final String matchOperators = "[+*\\-\\/=&|:<>]*";
+	private static final String matchOperators = "[+*\\-\\/=&|:<>!]*";
 	private static final String matchSeperators = "[{}();:,]";
 	private static final String matchCommentStart = "(\\/\\/)";
 	private static final String matchCommentCharacter = "[^\r]";

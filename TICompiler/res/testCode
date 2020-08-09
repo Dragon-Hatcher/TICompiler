@@ -1,41 +1,9 @@
-func swap() {
-	if(a) {
-		a = false;
-		ax = true;
-	} else if(b) {
-		b = false;
-		bx = true;
-	} else if(c) {
-		c = false;
-		cx = true;
-	} else if(d) {
-		d = false;
-		dx = true;
-	}
-}
-
 main {
 
   var a:bool = true;
   var b:bool = true;
-  var c:bool = true;
-  var d:bool = true;
-  var ax:bool = false;
-  var bx:bool = false;
-  var cx:bool = false;
-  var dx:bool = false;
 
-	while(true) {
+	if(a != b) {
 		print;
-		if(ax) {
-			if(bx) {
-				if(cx) {
-					if(dx) {
-						break;
-					}
-				}
-			}
-		}
-		swap();
 	}
 }

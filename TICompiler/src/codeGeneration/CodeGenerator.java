@@ -140,7 +140,7 @@ public class CodeGenerator {
 					seqCode.append(loadTypeFromPointerToPointer(insSPV.type, Register.DE, Register.HL));
 
 				} else if (ins instanceof SetResultILPN) {
-
+					seqCode.append(parseSetResult((SetResultILPN)ins, section));
 				} else if (ins instanceof SetILPN) {
 					SetILPN insS = (SetILPN) ins;
 					seqCode.append(";Set " + insS.sete + " to " + insS.seter + " \r\n");
@@ -354,4 +354,117 @@ public class CodeGenerator {
 		ret.append(" ld " + toIndirect + ", (HL)\r\n");
 		return ret.toString();
 	}
+	
+	private String parseSetResult(SetResultILPN set, ArrayList<Integer> section) throws Exception {
+		switch(set.operator) {
+		case AND:
+			switch(set.lrTypes) {
+			case "bool":
+				return parseAndBool(set, section);
+			default:
+				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
+			}
+		case OR:
+			switch(set.lrTypes) {
+			case "bool":
+				return parseOrBool(set, section);
+			default:
+				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
+			}
+		case NOT_EQUAL:
+			switch(set.lrTypes) {
+			case "bool":
+				return parseXorBool(set, section);
+			default:
+				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
+			}
+		default:
+			throw new Exception("Don't know how to handle operator " + set.operator);
+		}
+	}
+	
+	private String parseAndBool(SetResultILPN set, ArrayList<Integer> section) throws Exception {
+		StringBuilder ret = new StringBuilder();
+
+		if(set.left instanceof BoolILPN) {
+			boolean boolType = ((BoolILPN)set.left).trueOrFalse;
+			ret.append(" ld A, " + (boolType ? 1 : 0) + "\r\n");
+		} else if (set.left instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.DE));
+			ret.append(" ld A, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't bool or var use.");
+		}
+		if(set.right instanceof BoolILPN) {
+			boolean boolType = ((BoolILPN)set.right).trueOrFalse;
+			ret.append(" ld B, " + (boolType ? 1 : 0) + "\r\n");
+		} else if (set.right instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.DE));
+			ret.append(" ld B, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't bool or var use.");
+		}
+		ret.append(" AND A, B\r\n");
+		ret.append(getVarInRegisterHL(set.sete, section, Register.BC));
+		ret.append(" ld (HL), A");
+
+		return ret.toString();
+	}
+	
+	private String parseOrBool(SetResultILPN set, ArrayList<Integer> section) throws Exception {
+		StringBuilder ret = new StringBuilder();
+
+		if(set.left instanceof BoolILPN) {
+			boolean boolType = ((BoolILPN)set.left).trueOrFalse;
+			ret.append(" ld A, " + (boolType ? 1 : 0) + "\r\n");
+		} else if (set.left instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.DE));
+			ret.append(" ld A, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't bool or var use.");
+		}
+		if(set.right instanceof BoolILPN) {
+			boolean boolType = ((BoolILPN)set.right).trueOrFalse;
+			ret.append(" ld B, " + (boolType ? 1 : 0) + "\r\n");
+		} else if (set.right instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.DE));
+			ret.append(" ld B, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't bool or var use.");
+		}
+		ret.append(" OR A, B\r\n");
+		ret.append(getVarInRegisterHL(set.sete, section, Register.BC));
+		ret.append(" ld (HL), A");
+
+		return ret.toString();
+	}
+
+	private String parseXorBool(SetResultILPN set, ArrayList<Integer> section) throws Exception {
+		StringBuilder ret = new StringBuilder();
+
+		if(set.left instanceof BoolILPN) {
+			boolean boolType = ((BoolILPN)set.left).trueOrFalse;
+			ret.append(" ld A, " + (boolType ? 1 : 0) + "\r\n");
+		} else if (set.left instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.DE));
+			ret.append(" ld A, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't bool or var use.");
+		}
+		if(set.right instanceof BoolILPN) {
+			boolean boolType = ((BoolILPN)set.right).trueOrFalse;
+			ret.append(" ld B, " + (boolType ? 1 : 0) + "\r\n");
+		} else if (set.right instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.DE));
+			ret.append(" ld B, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't bool or var use.");
+		}
+		ret.append(" XOR A, B\r\n");
+		ret.append(getVarInRegisterHL(set.sete, section, Register.BC));
+		ret.append(" ld (HL), A");
+
+		return ret.toString();
+	}
+
 }

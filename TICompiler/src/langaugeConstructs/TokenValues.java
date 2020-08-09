@@ -12,7 +12,7 @@ public class TokenValues {
 
 	public static final HashSet<String> keywords = new HashSet<String>(Arrays.asList("var", "if", "else", "true", "false", "main", "func", "return", "while", "break", "void", "print"));
 	public static final HashSet<String> operators = new HashSet<String>(
-			Arrays.asList("==", "+", "-", "*", "/", "&&", "||", "<", ">", "<=", ">="));
+			Arrays.asList("==", "!=", "+", "-", "*", "/", "&&", "||", "<", ">", "<=", ">="));
 	public static final HashSet<String> assignments = new HashSet<String>(Arrays.asList("=", "+=", "-=", "*=", "/="));
 	public static final HashSet<String> seperators = new HashSet<String>(Arrays.asList("{", "}", "(", ")", ";", ":", ",", "->"));
 
@@ -28,6 +28,7 @@ public class TokenValues {
 			Map.entry(">", 900),
 			Map.entry(">=", 900),
 			Map.entry("==", 800),
+			Map.entry("!=", 800),
 			Map.entry("&&", 400),
 			Map.entry("||", 300),
 			Map.entry("=", 100),
@@ -47,6 +48,7 @@ public class TokenValues {
 			Map.entry(">", Set.of("int", "float", "char")),
 			Map.entry(">=", Set.of("int", "float", "char")),
 			Map.entry("==", Set.of("int", "float", "char", "bool")),
+			Map.entry("!=", Set.of("int", "float", "char", "bool")),
 			Map.entry("&&", Set.of("bool")),
 			Map.entry("||", Set.of("bool"))
 	);
@@ -61,6 +63,7 @@ public class TokenValues {
 			Map.entry(">", Map.ofEntries(   Map.entry("int", "bool"),Map.entry("float", "bool"),Map.entry("char", "bool"))),
 			Map.entry(">=", Map.ofEntries(   Map.entry("int", "bool"),Map.entry("float", "bool"),Map.entry("char", "bool"))),
 			Map.entry("==", Map.ofEntries(   Map.entry("int", "bool"),Map.entry("float", "bool"),Map.entry("char", "bool"),Map.entry("bool", "bool"))),
+			Map.entry("!=", Map.ofEntries(   Map.entry("int", "bool"),Map.entry("float", "bool"),Map.entry("char", "bool"),Map.entry("bool", "bool"))),
 			Map.entry("&&", Map.ofEntries(   Map.entry("bool", "bool"))),
 			Map.entry("||", Map.ofEntries(   Map.entry("bool", "bool")))
 			);
