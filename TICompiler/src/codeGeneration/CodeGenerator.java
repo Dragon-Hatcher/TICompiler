@@ -188,7 +188,10 @@ public class CodeGenerator {
 					myMemUse += typeSizes.get(insCV.type);
 					myVars.add(insCV.name);
 				} else if (ins instanceof LabelILPN) {
-					seqCode.append(((LabelILPN) ins).label + ":\r\n");
+					//TODO really really really hacky
+					if(!((LabelILPN) ins).label.startsWith("func_end_")) {
+						seqCode.append(((LabelILPN) ins).label + ":\r\n");
+					}
 				} else if (ins instanceof GotoILPN) {
 					GotoILPN insGT = (GotoILPN) ins;
 					if (insGT.ifVar.equals("")) {
@@ -210,7 +213,7 @@ public class CodeGenerator {
 			}
 		}
 
-		seqCode.append(";Open Scope Scope\r\n");
+		startString.append(";Open Scope\r\n");
 		startString.append(" ld HL, (s_mem_stack_pointer)\r\n");
 		startString.append(" ld DE, " + (myMemUse - memUse) + "\r\n");
 		startString.append(" ADD HL, DE\r\n");
@@ -233,6 +236,7 @@ public class CodeGenerator {
 		seqCode.append("end_close_scope_" + sectionCode(section) + ":\r\n");
 
 		if (section.size() == 1) {
+			seqCode.append("func_end_" + sectionCode(section) + ":\r\n");
 			seqCode.append(";Close Area\r\n");
 			seqCode.append(" ld HL, (s_area_stack_pointer)\r\n");
 			seqCode.append(" DEC HL\r\n");
@@ -482,7 +486,7 @@ public class CodeGenerator {
 		ret.append(" SBC A, A\r\n");
 		ret.append(" INC A\r\n");
 		ret.append(getVarInRegisterHL(set.sete, section, Register.DE));
-		ret.append(" ld (HL), A");
+		ret.append(" ld (HL), A\r\n");
 
 		return ret.toString();		
 	}

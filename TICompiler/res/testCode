@@ -1,7 +1,7 @@
 main {
   var a:int = 1;
 	
-	while((a == 1 || a == 2 || a == 3 || a == 4) && t()) {
+	while(not(a == 5)) {
 		a += 1;
 		print;
 	}
@@ -13,8 +13,4 @@ func not(bool b) -> bool {
 	} else {
 		return true;
 	}
-}
-
-func t() -> bool {
-	return true;
 }
