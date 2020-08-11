@@ -260,7 +260,7 @@ public class CodeGenerator {
 	private String findVariableName(String varName, ArrayList<Integer> mySection) throws Exception {
 		ArrayList<Integer> zero = new ArrayList<Integer>();
 		zero.add(0);
-		if (sectionVars.get(zero).contains(varName)) {
+		if (!varName.startsWith("u_s_temp") && sectionVars.get(zero).contains(varName)) {
 			return "u_" + varName + "_0";
 		} else {
 			for (int i = mySection.size(); i >= 1; i--) {
@@ -269,6 +269,7 @@ public class CodeGenerator {
 				}
 			}
 		}
+		System.out.println(mySection);
 		throw new Exception("Could not find var");
 	}
 
@@ -399,6 +400,13 @@ public class CodeGenerator {
 			default:
 				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
 			}
+		case MINUS:
+			switch(set.lrTypes) {
+			case "int":
+				return parseMinusUInt(set, section);
+			default:
+				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
+			}
 		default:
 			throw new Exception("Don't know how to handle operator " + set.operator);
 		}
@@ -443,6 +451,46 @@ public class CodeGenerator {
 		return ret.toString();		
 	}
 
+	private String parseMinusUInt(SetResultILPN set, ArrayList<Integer> section) throws Exception {
+		StringBuilder ret = new StringBuilder();
+		ret.append(";Add uint\r\n");
+		
+		if(set.left instanceof NumILPN) {
+			int num = Integer.parseInt(((NumILPN)set.left).num);
+			ret.append(" ld BC, " + num + "\r\n");
+		} else if (set.left instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.BC));
+			ret.append(" ld C, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld B, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't num or var use.");
+		}
+		if(set.right instanceof NumILPN) {
+			int num = Integer.parseInt(((NumILPN)set.right).num);
+			ret.append(" ld DE, " + num + "\r\n");
+		} else if (set.right instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.DE));
+			ret.append(" ld E, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld D, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't num or var use.");
+		}
+		ret.append(" PUSH BC\r\n");
+		ret.append(" POP HL\r\n");
+		ret.append(" OR A\r\n");
+		ret.append(" SBC HL, DE\r\n");
+		ret.append(" ld B, H\r\n");
+		ret.append(" ld C, L\r\n");
+		ret.append(getVarInRegisterHL(set.sete, section, Register.DE));
+		ret.append(" ld (HL), C\r\n");
+		ret.append(" INC HL\r\n");
+		ret.append(" ld (HL), B\r\n");
+
+		return ret.toString();		
+	}
+	
 	private String parseEqualUInt(SetResultILPN set, ArrayList<Integer> section) throws Exception {
 		StringBuilder ret = new StringBuilder();
 		ret.append(";Compare equal uint\r\n");

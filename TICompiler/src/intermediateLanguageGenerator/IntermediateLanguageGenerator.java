@@ -56,9 +56,6 @@ public class IntermediateLanguageGenerator {
 				} else if (iL.label.startsWith("func_end_" + func)) {
 					end = i;
 					Map<String, Integer> temps = findTemps(main.instructions, start, end, superUses);
-					if(func == 0) {
-						superUses = temps;
-					}
 					func++;
 				}
 			}
@@ -279,15 +276,17 @@ public class IntermediateLanguageGenerator {
 		for(int i = start; i < end + newVars.size(); i++) {
 			if(code.get(i) instanceof OpenScopeILPN) {
 				rDepthCount++;
-			} else if(code.get(i) instanceof CloseScopeILPN) {
-				rDepthCount--;
 			}
 			
 //			System.out.println(i + ": (" + end + ") " + rDepthCount + "; " + code.get(i));
 			
 			if(rDepthCount == 1 && (code.get(i) instanceof OpenScopeILPN)) {
-				code.addAll(i + 1, newVars);
-//				System.out.println(">>>> " + newVars);
+				int j = i + 1;
+				while(code.get(j) instanceof CreateVariableILPN) {
+					j++;
+				}
+				code.addAll(j, newVars);
+				//				System.out.println(">>>> " + newVars);
 			}
 			
 			if(rDepthCount == 2 && code.get(i) instanceof OpenScopeILPN) {
@@ -299,7 +298,10 @@ public class IntermediateLanguageGenerator {
 				i += code.size() - oldLength;
 				end += code.size() - oldLength;
 			}
-			
+		
+			if(code.get(i) instanceof CloseScopeILPN) {
+				rDepthCount--;
+			}
 		}
 		
 //		System.out.println("---e");

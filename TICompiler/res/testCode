@@ -1,16 +1,14 @@
-main {
-  var a:int = 1;
-	
-	while(not(a == 5)) {
-		a += 1;
-		print;
+func one(int n) -> int {
+	if(n == 0) {
+		return 0;
+	} else {
+		return one(n - 1);
 	}
 }
 
-func not(bool b) -> bool {
-	if(b) {
-		return false;
-	} else {
-		return true;
+
+main {
+	if(one(2) == 0) {
+		print;
 	}
 }
