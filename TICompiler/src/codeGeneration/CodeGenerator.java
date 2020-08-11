@@ -273,7 +273,10 @@ public class CodeGenerator {
 		throw new Exception("Could not find var");
 	}
 
-	private boolean isMainVariable(String varName) {
+	private boolean isMainVariable(String varName, ArrayList<Integer> section) {
+		if(varName.startsWith("s_temp") && section.get(0) != 0) {
+			return false;
+		}
 		ArrayList<Integer> zero = new ArrayList<Integer>();
 		zero.add(0);
 		return sectionVars.get(zero).contains(varName);
@@ -286,14 +289,13 @@ public class CodeGenerator {
 		StringBuilder ret = new StringBuilder();
 
 		String varName = findVariableName(rawVarName, section);
-		if (isMainVariable(rawVarName)) {
+		if (isMainVariable(rawVarName, section)) {
 			ret.append(" ld HL, s_mem_stack_pointer + 3 \r\n");
 		} else {
 			ret.append(" ld HL, (s_area_stack_pointer) \r\n");
 			ret.append(" ld " + reg + ", (HL)\r\n");
 			ret.append(" PUSH " + reg + "\r\n");
 			ret.append(" POP HL\r\n");
-			ret.append(loadRegister(Register.BC, Register.HL));
 		}
 		ret.append(" ld " + reg + ", " + varName + "\r\n");
 		ret.append(" ADD HL, " + reg + "\r\n");
@@ -309,16 +311,16 @@ public class CodeGenerator {
 		StringBuilder ret = new StringBuilder();
 
 		String varName = findVariableName(rawVarName, section);
-		if (isMainVariable(rawVarName)) {
+		if (isMainVariable(rawVarName, section)) {
 			ret.append(" ld HL, s_mem_stack_pointer + 3 \r\n");
 		} else {
 			ret.append(" ld HL, (s_area_stack_pointer) \r\n");
-			ret.append(" ld C, (HL)\r\n");
-			ret.append(" INC HL\r\n");
-			ret.append(" ld B, (HL)\r\n");
-			ret.append(loadRegister(Register.BC, Register.HL));
+			ret.append(" ld " + reg + ", (HL)\r\n");
+			ret.append(" PUSH " + reg + "\r\n");
+			ret.append(" POP HL\r\n");
 		}
-		ret.append(" ld " + reg + ", " + varName + "\r\n" + " ADD HL, " + reg + "\r\n");
+		ret.append(" ld " + reg + ", " + varName + "\r\n");
+		ret.append(" ADD HL, " + reg + "\r\n");
 
 		return ret.toString();
 	}
@@ -453,7 +455,7 @@ public class CodeGenerator {
 
 	private String parseMinusUInt(SetResultILPN set, ArrayList<Integer> section) throws Exception {
 		StringBuilder ret = new StringBuilder();
-		ret.append(";Add uint\r\n");
+		ret.append(";Minus uint\r\n");
 		
 		if(set.left instanceof NumILPN) {
 			int num = Integer.parseInt(((NumILPN)set.left).num);

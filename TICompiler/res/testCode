@@ -1,14 +1,14 @@
-func one(int n) -> int {
-	if(n == 0) {
+func fib(int n) -> int {
+	if(n == 0 || n == 1 || n == 2) {
 		return 0;
 	} else {
-		return one(n - 1);
+		return fib(n - 1) + fib(n - 2);
 	}
 }
 
 
 main {
-	if(one(2) == 0) {
+	if(fib(2) == 0) {
 		print;
 	}
 }
