@@ -60,8 +60,8 @@ public class TICompiler {
 		MainLevelILPN mainLevelILParseNode = null;
 		try {
 			mainLevelILParseNode = intermediateLanguageGenerator.generatorIL(mainLevelParseNode);
-			System.out.println(mainLevelILParseNode);
-			System.out.println("------");
+//			System.out.println(mainLevelILParseNode);
+//			System.out.println("------");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

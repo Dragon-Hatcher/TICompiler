@@ -260,7 +260,7 @@ public class CodeGenerator {
 	private String findVariableName(String varName, ArrayList<Integer> mySection) throws Exception {
 		ArrayList<Integer> zero = new ArrayList<Integer>();
 		zero.add(0);
-		if (!varName.startsWith("u_s_temp") && sectionVars.get(zero).contains(varName)) {
+		if (!varName.startsWith("s_temp") && sectionVars.get(zero).contains(varName)) {
 			return "u_" + varName + "_0";
 		} else {
 			for (int i = mySection.size(); i >= 1; i--) {
