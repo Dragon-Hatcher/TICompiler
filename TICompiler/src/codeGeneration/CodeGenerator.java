@@ -284,21 +284,9 @@ public class CodeGenerator {
 
 	// Destroys: HL, Gives var pointer in reg
 	private String getVarInRegister(String rawVarName, ArrayList<Integer> section, Register reg) throws Exception {
-		reg.assertNotHLWord();
-
 		StringBuilder ret = new StringBuilder();
 
-		String varName = findVariableName(rawVarName, section);
-		if (isMainVariable(rawVarName, section)) {
-			ret.append(" ld HL, s_mem_stack_pointer + 3 \r\n");
-		} else {
-			ret.append(" ld HL, (s_area_stack_pointer) \r\n");
-			ret.append(" ld " + reg + ", (HL)\r\n");
-			ret.append(" PUSH " + reg + "\r\n");
-			ret.append(" POP HL\r\n");
-		}
-		ret.append(" ld " + reg + ", " + varName + "\r\n");
-		ret.append(" ADD HL, " + reg + "\r\n");
+		ret.append(getVarInRegisterHL(rawVarName, section, reg));
 		ret.append(loadRegister(reg, Register.HL));
 
 		return ret.toString();
@@ -312,14 +300,12 @@ public class CodeGenerator {
 
 		String varName = findVariableName(rawVarName, section);
 		if (isMainVariable(rawVarName, section)) {
-			ret.append(" ld HL, s_mem_stack_pointer + 3 \r\n");
+			ret.append(" ld " + reg + ", s_mem_stack_pointer + 3 \r\n");
 		} else {
 			ret.append(" ld HL, (s_area_stack_pointer) \r\n");
 			ret.append(" ld " + reg + ", (HL)\r\n");
-			ret.append(" PUSH " + reg + "\r\n");
-			ret.append(" POP HL\r\n");
 		}
-		ret.append(" ld " + reg + ", " + varName + "\r\n");
+		ret.append(" ld HL, " + varName + "\r\n");
 		ret.append(" ADD HL, " + reg + "\r\n");
 
 		return ret.toString();
@@ -383,6 +369,8 @@ public class CodeGenerator {
 			switch(set.lrTypes) {
 			case "bool":
 				return parseXorBool(set, section);
+			case "int":
+				return parseNotEqualUInt(set, section);
 			default:
 				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
 			}
@@ -541,6 +529,54 @@ public class CodeGenerator {
 		return ret.toString();		
 	}
 
+	private String parseNotEqualUInt(SetResultILPN set, ArrayList<Integer> section) throws Exception {
+		StringBuilder ret = new StringBuilder();
+		ret.append(";Compare equal uint\r\n");
+
+		if(set.left instanceof NumILPN) {
+			int num = Integer.parseInt(((NumILPN)set.left).num);
+			ret.append(" ld BC, " + num + "\r\n");
+		} else if (set.left instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.BC));
+			ret.append(" ld C, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld B, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't num or var use.");
+		}
+		if(set.right instanceof NumILPN) {
+			int num = Integer.parseInt(((NumILPN)set.right).num);
+			ret.append(" ld DE, " + num + "\r\n");
+		} else if (set.right instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.DE));
+			ret.append(" ld E, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld D, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't num or var use.");
+		}
+		
+		/*
+		 ld a,e \ sub a,c \ ld l,a \ ld a,d \ sub a,b \ or a,l \ add a,-1 \ sbc a,a \ inc a
+
+		 so anyway Dragon_Hatcher, if they were zero extended you could do ex de,hl \ xor a,a \ sbc hl,bc \ jr nz,_ \ inc a \_:
+																								   .s if not 24 bit			
+		 */		
+		ret.append(" ld A, B\r\n");
+		ret.append(" SUB A, D\r\n");
+		ret.append(" ld B, A\r\n");
+		ret.append(" ld A, C\r\n");
+		ret.append(" SUB A, E\r\n");
+		ret.append(" OR A, B\r\n");
+		ret.append(" ADD A, -1\r\n");
+		ret.append(" SBC A, A\r\n");
+		ret.append(" INC A\r\n");
+		ret.append(" XOR A, 1\r\n");
+		ret.append(getVarInRegisterHL(set.sete, section, Register.DE));
+		ret.append(" ld (HL), A\r\n");
+
+		return ret.toString();		
+	}
 	
 	private String parseAndBool(SetResultILPN set, ArrayList<Integer> section) throws Exception {
 		StringBuilder ret = new StringBuilder();
