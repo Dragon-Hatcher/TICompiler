@@ -200,6 +200,14 @@ public class Parser {
 				instructions.instructions.add(breakPN);
 				eatToken(new Token("break", TokenType.KEYWORD));
 				eatToken(new Token(";", TokenType.SEPERATOR));
+			} else if (isKw("raw")) {
+				pop();
+				eatToken(new Token(":", TokenType.SEPERATOR));
+				instructions.instructions.add(new RawPN(pop().text));
+			} else if (isKw("rawf")) { 				
+				pop();
+				eatToken(new Token(":", TokenType.SEPERATOR));
+				instructions.instructions.add(new RawFPN(pop().text));
 			} else {
 				throw new UnexpectedTokenException("Unexpected token " + peek() + " on " + peek().lcText());
 			}

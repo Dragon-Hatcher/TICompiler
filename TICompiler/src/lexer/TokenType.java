@@ -9,4 +9,6 @@ public enum TokenType {
 	LITERAL_NUM,
 	LITERAL_STRING,
 	COMMENT,
+	RAW,
+	RAW_FUNCTION
 }

@@ -21,49 +21,26 @@ public class TICompiler {
 
 	public static void main(String[] args) throws Exception {		
 		String code = "";
-		try {
-			code = readFileAsString("./res/testCode");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		code = readFileAsString("./res/testCode");
 		
 		Lexer lexer = new Lexer();
 		ArrayList<Token> tokens = new ArrayList<Token>();
-		try {
-			tokens = lexer.lex(code);
-		} catch (UnknownOperatorException e) {
-			e.printStackTrace();
-		} catch (UnknownSeperatorException e) {
-			e.printStackTrace();
-		} catch (UnableToLexCharacterException e) {
-			e.printStackTrace();
-		}
+		tokens = lexer.lex(code);
+//		System.out.println(tokens);
 		
 		Parser parser = new Parser();
 		MainLevelPN mainLevelParseNode = null;
-		try {
-			mainLevelParseNode = parser.parse(tokens);
-			//System.out.println(mainLevelParseNode);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		mainLevelParseNode = parser.parse(tokens);
+		//System.out.println(mainLevelParseNode);
 		
 		SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
-		try {
-			semanticAnalyzer.analyze(mainLevelParseNode);
-		} catch (Exception e) {
-			e.printStackTrace();			
-		}
+		semanticAnalyzer.analyze(mainLevelParseNode);
 		
 		IntermediateLanguageGenerator intermediateLanguageGenerator = new IntermediateLanguageGenerator();
 		MainLevelILPN mainLevelILParseNode = null;
-		try {
-			mainLevelILParseNode = intermediateLanguageGenerator.generatorIL(mainLevelParseNode);
-//			System.out.println(mainLevelILParseNode);
-//			System.out.println("------");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		mainLevelILParseNode = intermediateLanguageGenerator.generatorIL(mainLevelParseNode);
+//		System.out.println(mainLevelILParseNode);
+//		System.out.println("------");
 		
 		CodeGenerator codeGenerator = new CodeGenerator();
 		System.out.println(codeGenerator.generateAssembly(mainLevelILParseNode));

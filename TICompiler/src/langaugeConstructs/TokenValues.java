@@ -10,7 +10,7 @@ import static java.util.Map.Entry;
 
 public class TokenValues {
 
-	public static final HashSet<String> keywords = new HashSet<String>(Arrays.asList("var", "if", "else", "true", "false", "main", "func", "return", "while", "break", "void", "print"));
+	public static final HashSet<String> keywords = new HashSet<String>(Arrays.asList("var", "if", "else", "true", "false", "main", "func", "return", "while", "break", "void", "print", "raw", "rawf"));
 	public static final HashSet<String> operators = new HashSet<String>(
 			Arrays.asList("==", "!=", "+", "-", "*", "/", "&&", "||", "<", ">", "<=", ">="));
 	public static final HashSet<String> assignments = new HashSet<String>(Arrays.asList("=", "+=", "-=", "*=", "/="));

@@ -208,6 +208,22 @@ public class CodeGenerator {
 					seqCode.append(";Print\r\n");
 					seqCode.append(" ld A, 65\r\n");
 					seqCode.append(" call _PutC\r\n");
+				} else if (ins instanceof RawILPN) {
+					((RawILPN)ins).replaceSection(sectionCode(section));
+					seqCode.append(((RawILPN)ins).text + " ;Raw \r\n");
+				} else if (ins instanceof RawFILPN) {
+					String[] parts = ((RawFILPN)ins).text.split(",");
+					if(parts[0].equals("assign")) {
+						if(parts[2].equals("HL")) {
+							seqCode.append(getVarInRegisterHL(parts[1], section, Register.valueOf(parts[3])));
+						} else if (parts[3].equals("HL")) {
+							seqCode.append(getVarInRegister(parts[1], section, Register.valueOf(parts[2])));							
+						} else {
+							throw new Exception("Bad Arguments for rawf assign");
+						}
+					} else {
+						throw new Exception("Unknown rawf " + parts[0]);
+					}
 				}
 				// seqCode.append(";---------\r\n");
 			}
@@ -328,6 +344,7 @@ public class CodeGenerator {
 		StringBuilder ret = new StringBuilder();
 
 		int count = typeSizes.get(type);
+		//TODO Change to LDI?
 		for (int i = 0; i < count; i++) {
 			ret.append(" ld A, (" + source + ")\r\n");
 			ret.append(" ld (" + destination + "), A\r\n");

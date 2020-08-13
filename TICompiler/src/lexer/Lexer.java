@@ -12,7 +12,7 @@ public class Lexer {
 	private static final String matchOperators = "[+*\\-\\/=&|:<>!]*";
 	private static final String matchSeperators = "[{}();:,]";
 	private static final String matchCommentStart = "(\\/\\/)";
-	private static final String matchCommentCharacter = "[^\r]";
+	private static final String matchUntilNewLine = "[^\r]";
 	private static final String matchNumbers = "[0-9]*";
 	private static final char decimalPoint = '.';
 	private static final String matchWhiteSpace = "[ \n\r\t]*";
@@ -34,7 +34,7 @@ public class Lexer {
 			if(c2.matches(matchCommentStart)) {
 				int lineS = line;
 				int colS = col;
-				Token t = new Token(readWhileRegex(matchCommentCharacter), TokenType.COMMENT);
+				Token t = new Token(readWhileRegex(matchUntilNewLine), TokenType.COMMENT);
 				t.lineCol(lineS, colS);
 				tokens.add(t);
 			} else if (c1.matches(matchKeywordsIdentifiers)) {
@@ -56,6 +56,14 @@ public class Lexer {
 					t.lineCol(line, col);
 					tokens.add(t);
 					pop();
+					Token prev = tokens.get(tokens.size()-2);
+					if (c1.equals(":") && (prev.hasProps("raw", TokenType.KEYWORD) || prev.hasProps("rawf", TokenType.KEYWORD))) {
+						int lineS = line;
+						int colS = col;
+						Token nt = new Token(readWhileRegex(matchUntilNewLine), prev.text.equals("raw") ? TokenType.RAW : TokenType.RAW_FUNCTION);
+						nt.lineCol(lineS, colS);
+						tokens.add(nt);
+					}
 				} else {
 					throw new UnknownSeperatorException("Unknown operator " + c1 + " at line " + line + ", column " + col);
 				}

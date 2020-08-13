@@ -166,6 +166,10 @@ public class IntermediateLanguageGenerator {
 				ilNodes.add(new GotoILPN("func_end_" + funcName));
 			} else if (i instanceof PrintPN){
 				ilNodes.add(new PrintILPN());
+			} else if (i instanceof RawPN) { 
+				ilNodes.add(new RawILPN( ((RawPN)i).text ));
+			} else if (i instanceof RawFPN) { 
+				ilNodes.add(new RawFILPN( ((RawFPN)i).text ));
 			} else {
 				throw new Exception("Don't know how to parse " + i.getClass());
 			}
@@ -218,7 +222,7 @@ public class IntermediateLanguageGenerator {
 			throw new Exception("Unimplemented expression parse in IntermediateLanguageGeneration");
 		}
 	}
-
+	
 	private ArrayList<ILParseNode> functionCallInstructions(Evaluable evaluable, int tempToPutResult,
 			Map<String, Integer> typeTemps) throws Exception {
 		FunctionCallPN eFC = ((FunctionCallPN) evaluable);
