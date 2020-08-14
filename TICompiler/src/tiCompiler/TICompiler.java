@@ -7,14 +7,11 @@ import java.util.ArrayList;
 import codeGeneration.CodeGenerator;
 import intermediateLanguageGenerator.IntermediateLanguageGenerator;
 import intermediateLanguageGenerator.nodes.MainLevelILPN;
+import langaugeConstructs.Characters;
 import lexer.Lexer;
 import lexer.Token;
-import lexer.UnableToLexCharacterException;
-import lexer.UnknownOperatorException;
-import lexer.UnknownSeperatorException;
 import parser.Parser;
 import parser.nodes.MainLevelPN;
-import parser.nodes.ParseNode;
 import semanticAnalyzer.SemanticAnalyzer;
 
 public class TICompiler {

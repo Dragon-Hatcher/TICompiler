@@ -148,6 +148,9 @@ public class CodeGenerator {
 					if (insS.seter instanceof BoolILPN) {
 						seqCode.append(loadRegister(Register.HL, Register.DE));
 						seqCode.append(" ld (HL), " + (((BoolILPN) insS.seter).trueOrFalse ? 1 : 0) + "\r\n");
+					} else if (insS.seter instanceof CharILPN) {
+						seqCode.append(loadRegister(Register.HL, Register.DE));
+						seqCode.append(" ld (HL), $" + Integer.toHexString(((CharILPN) insS.seter).character.charToCode()) + "\r\n");
 					} else if (insS.seter instanceof NumILPN) {
 						seqCode.append(loadRegister(Register.HL, Register.DE));
 						seqCode.append(" ld DE, " + Integer.parseInt(((NumILPN) insS.seter).num) + "\r\n");
@@ -213,6 +216,7 @@ public class CodeGenerator {
 					seqCode.append(((RawILPN)ins).text + " ;Raw \r\n");
 				} else if (ins instanceof RawFILPN) {
 					String[] parts = ((RawFILPN)ins).text.split(",");
+					seqCode.append(" ;rawf\r\n");
 					if(parts[0].equals("assign")) {
 						if(parts[2].equals("HL")) {
 							seqCode.append(getVarInRegisterHL(parts[1], section, Register.valueOf(parts[3])));

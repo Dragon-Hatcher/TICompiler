@@ -2,6 +2,7 @@ package parser;
 
 import java.util.ArrayList;
 
+import langaugeConstructs.Characters;
 import langaugeConstructs.TokenValues;
 import lexer.Token;
 import lexer.TokenType;
@@ -374,6 +375,16 @@ public class Parser {
 			return ret;
 		} else if (isSep("(")) {
 			return parseExpression(new Token("(", TokenType.SEPERATOR), new Token(")", TokenType.SEPERATOR));
+		} else if (isSep("'")) {
+			pop();
+			Token character = pop();
+			if(character.type != TokenType.LITERAL_CHAR) {
+				throw new Exception("' must be followed by char litteral");
+			}
+			CharLitteralPN ret = new CharLitteralPN(Characters.stringToCharacter(character.text));
+			eatToken(new Token("'", TokenType.SEPERATOR));
+			ret.lineCol(line, col);
+			return ret;
 		} else if (isId()) {
 			String name = pop().text;
 			if (isSep("(")) {

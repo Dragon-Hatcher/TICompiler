@@ -1,20 +1,28 @@
-func fib(int n) -> int {
-	if(n == 1 || n == 2) {
-		return 1;
-	} else {
-		return fib(n - 1) + fib(n - 2);
-	}
-}
-
-
 main {
-	var result: int = fib(6);
-
-	var i:int = 0;
-	while(i != result) {
-		print;
-		i += 1;
-	}
+	var x:char = '\dither\';
+	printChar(x);
 }
 
 //888
+
+func printChar(char c) {
+	rawf:assign,c,HL,BC
+	raw: ld A, (HL)
+	raw: call _PutC
+}
+
+
+
+
+//func printBool(bool x) {
+//	rawf:assign,x,HL,BC
+//	raw: ld A, (HL)
+//	raw: cp 0
+//	raw: jp Z, false*
+//	raw: ld A, $54
+//	raw: jp end*
+//	raw:false*: 
+//	raw: ld A, $46
+//	raw:end*:
+//	raw: call _PutC
+//}

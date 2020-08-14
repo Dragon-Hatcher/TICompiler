@@ -14,7 +14,7 @@ public class TokenValues {
 	public static final HashSet<String> operators = new HashSet<String>(
 			Arrays.asList("==", "!=", "+", "-", "*", "/", "&&", "||", "<", ">", "<=", ">="));
 	public static final HashSet<String> assignments = new HashSet<String>(Arrays.asList("=", "+=", "-=", "*=", "/="));
-	public static final HashSet<String> seperators = new HashSet<String>(Arrays.asList("{", "}", "(", ")", ";", ":", ",", "->"));
+	public static final HashSet<String> seperators = new HashSet<String>(Arrays.asList("{", "}", "(", ")", ";", ":", ",", "->", "'", "\""));
 
 	public static final Map<String, Integer> operatorPrecedence = Map.ofEntries(
 			Map.entry("(", 1500),

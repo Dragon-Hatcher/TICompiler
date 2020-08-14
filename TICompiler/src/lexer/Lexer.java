@@ -10,8 +10,9 @@ public class Lexer {
 
 	private static final String matchKeywordsIdentifiers = "[A-Za-z]*";
 	private static final String matchOperators = "[+*\\-\\/=&|:<>!]*";
-	private static final String matchSeperators = "[{}();:,]";
+	private static final String matchSeperators = "[{}();:,'\"]";
 	private static final String matchCommentStart = "(\\/\\/)";
+	private static final String matchUntilSingleQuote = "[^']";
 	private static final String matchUntilNewLine = "[^\r]";
 	private static final String matchNumbers = "[0-9]*";
 	private static final char decimalPoint = '.';
@@ -56,6 +57,9 @@ public class Lexer {
 					t.lineCol(line, col);
 					tokens.add(t);
 					pop();
+					if(tokens.size() <= 1) {
+						continue;
+					}
 					Token prev = tokens.get(tokens.size()-2);
 					if (c1.equals(":") && (prev.hasProps("raw", TokenType.KEYWORD) || prev.hasProps("rawf", TokenType.KEYWORD))) {
 						int lineS = line;
@@ -63,6 +67,12 @@ public class Lexer {
 						Token nt = new Token(readWhileRegex(matchUntilNewLine), prev.text.equals("raw") ? TokenType.RAW : TokenType.RAW_FUNCTION);
 						nt.lineCol(lineS, colS);
 						tokens.add(nt);
+					} else if (c1.equals("'") && prev.type != TokenType.LITERAL_CHAR) {
+						int lineS = line;
+						int colS = col;
+						Token nt = new Token(readWhileRegex(matchUntilSingleQuote), TokenType.LITERAL_CHAR);
+						nt.lineCol(lineS, colS);
+						tokens.add(nt);						
 					}
 				} else {
 					throw new UnknownSeperatorException("Unknown operator " + c1 + " at line " + line + ", column " + col);

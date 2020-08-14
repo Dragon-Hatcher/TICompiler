@@ -191,6 +191,10 @@ public class IntermediateLanguageGenerator {
 			BoolILPN bool = new BoolILPN(((BooleanLitteralPN) evaluable).trueOrFalse);
 			ret.add(new SetILPN("s_temp" + tempToPutResult + "_bool", bool, "bool"));
 			return ret;
+		} else if (evaluable instanceof CharLitteralPN) {
+			CharILPN character = new CharILPN(((CharLitteralPN) evaluable).character);
+			ret.add(new SetILPN("s_temp" + tempToPutResult + "_char", character, "char"));
+			return ret;
 		} else if (evaluable instanceof VariableUsePN) {
 			VarUseILPN var = new VarUseILPN(((VariableUsePN) evaluable).name);
 			ret.add(new SetILPN("s_temp" + tempToPutResult + "_" + ((VariableUsePN) evaluable).type(), var, ((VariableUsePN) evaluable).type()));
