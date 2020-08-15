@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 import intermediateLanguageGenerator.nodes.*;
+import langaugeConstructs.Characters;
 import toolkit.Copy;
 
 public class CodeGenerator {
@@ -22,6 +23,8 @@ public class CodeGenerator {
 
 	Map<String, Integer> typeSizes = new HashMap<String, Integer>();
 
+	int uniqueNum = 0;
+	
 	public CodeGenerator() {
 		typeSizes.put("int", 2);
 		typeSizes.put("$pointer", 3);
@@ -154,9 +157,9 @@ public class CodeGenerator {
 					} else if (insS.seter instanceof NumILPN) {
 						seqCode.append(loadRegister(Register.HL, Register.DE));
 						seqCode.append(" ld DE, " + Integer.parseInt(((NumILPN) insS.seter).num) + "\r\n");
-						seqCode.append(" ld (HL), E\r\n");
-						seqCode.append(" INC HL\r\n");
 						seqCode.append(" ld (HL), D\r\n");
+						seqCode.append(" INC HL\r\n");
+						seqCode.append(" ld (HL), E\r\n");
 					} else if (insS.seter instanceof VarUseILPN) {
 						VarUseILPN seterVU = (VarUseILPN) insS.seter;
 						seqCode.append(getVarInRegister(seterVU.name, section, Register.BC));
@@ -392,6 +395,8 @@ public class CodeGenerator {
 				return parseXorBool(set, section);
 			case "int":
 				return parseNotEqualUInt(set, section);
+			case "char":
+				return parseNotEqualChar(set, section);
 			default:
 				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
 			}
@@ -401,6 +406,8 @@ public class CodeGenerator {
 				return parseNxorBool(set, section);
 			case "int":
 				return parseEqualUInt(set, section);
+			case "char":
+				return parseEqualChar(set, section);
 			default:
 				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
 			}
@@ -423,6 +430,80 @@ public class CodeGenerator {
 		}
 	}
 	
+	private String parseEqualChar(SetResultILPN set, ArrayList<Integer> section) throws Exception {
+		StringBuilder ret = new StringBuilder();
+		ret.append(";Compare equal char\r\n");
+		
+		if(set.left instanceof CharILPN) {
+			Characters character = ((CharILPN)set.left).character;
+			ret.append(" ld A, " + character.charToCode() + "\r\n");
+		} else if (set.left instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.BC));
+			ret.append(" ld A, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't char or var use.");
+		}
+		if(set.right instanceof CharILPN) {
+			Characters character = ((CharILPN)set.right).character;
+			ret.append(" ld B, " + character.charToCode() + "\r\n");
+		} else if (set.right instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.BC));
+			ret.append(" ld B, (HL)\r\n");
+		} else {
+			throw new Exception("right isn't char or var use.");
+		}
+		int num = getUniqueNum();
+		ret.append(" cp B\r\n");
+		ret.append(" jp Z, equal_" + num + "\r\n");
+		ret.append(" ld A, 0\r\n");
+		ret.append(" jp end_" + num + "\r\n");
+		ret.append("equal_" + num + "\r\n");
+		ret.append(" ld A, 1\r\n");
+		ret.append("end_" + num + "\r\n");
+		ret.append(getVarInRegisterHL(set.sete, section, Register.BC));
+		ret.append(" ld (HL), A\r\n");
+
+		return ret.toString();		
+
+	}
+	
+	private String parseNotEqualChar(SetResultILPN set, ArrayList<Integer> section) throws Exception {
+		StringBuilder ret = new StringBuilder();
+		ret.append(";Compare not equal char\r\n");
+		
+		if(set.left instanceof CharILPN) {
+			Characters character = ((CharILPN)set.left).character;
+			ret.append(" ld A, " + character.charToCode() + "\r\n");
+		} else if (set.left instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.BC));
+			ret.append(" ld A, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't char or var use.");
+		}
+		if(set.right instanceof CharILPN) {
+			Characters character = ((CharILPN)set.right).character;
+			ret.append(" ld B, " + character.charToCode() + "\r\n");
+		} else if (set.right instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.BC));
+			ret.append(" ld B, (HL)\r\n");
+		} else {
+			throw new Exception("right isn't char or var use.");
+		}
+		int num = getUniqueNum();
+		ret.append(" cp B\r\n");
+		ret.append(" jp Z, equal_" + num + "\r\n");
+		ret.append(" ld A, 1\r\n");
+		ret.append(" jp end_" + num + "\r\n");
+		ret.append("equal_" + num + "\r\n");
+		ret.append(" ld A, 0\r\n");
+		ret.append("end_" + num + "\r\n");
+		ret.append(getVarInRegisterHL(set.sete, section, Register.BC));
+		ret.append(" ld (HL), A\r\n");
+
+		return ret.toString();		
+
+	}
+	
 	private String parsePlusUInt(SetResultILPN set, ArrayList<Integer> section) throws Exception {
 		StringBuilder ret = new StringBuilder();
 		ret.append(";Add uint\r\n");
@@ -432,9 +513,10 @@ public class CodeGenerator {
 			ret.append(" ld BC, " + num + "\r\n");
 		} else if (set.left instanceof VarUseILPN) {
 			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.BC));
-			ret.append(" ld C, (HL)\r\n");
-			ret.append(" INC HL\r\n");
+			ret.append(" ld BC, 0\r\n");
 			ret.append(" ld B, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld C, (HL)\r\n");
 		} else {
 			throw new Exception("Left isn't num or var use.");
 		}
@@ -443,9 +525,10 @@ public class CodeGenerator {
 			ret.append(" ld DE, " + num + "\r\n");
 		} else if (set.right instanceof VarUseILPN) {
 			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.DE));
-			ret.append(" ld E, (HL)\r\n");
-			ret.append(" INC HL\r\n");
+			ret.append(" ld DE, 0\r\n");
 			ret.append(" ld D, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld E, (HL)\r\n");
 		} else {
 			throw new Exception("Left isn't num or var use.");
 		}
@@ -462,6 +545,7 @@ public class CodeGenerator {
 		return ret.toString();		
 	}
 
+
 	private String parseMinusUInt(SetResultILPN set, ArrayList<Integer> section) throws Exception {
 		StringBuilder ret = new StringBuilder();
 		ret.append(";Minus uint\r\n");
@@ -471,9 +555,10 @@ public class CodeGenerator {
 			ret.append(" ld BC, " + num + "\r\n");
 		} else if (set.left instanceof VarUseILPN) {
 			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.BC));
-			ret.append(" ld C, (HL)\r\n");
-			ret.append(" INC HL\r\n");
+			ret.append(" ld BC, 0\r\n");
 			ret.append(" ld B, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld C, (HL)\r\n");
 		} else {
 			throw new Exception("Left isn't num or var use.");
 		}
@@ -482,9 +567,10 @@ public class CodeGenerator {
 			ret.append(" ld DE, " + num + "\r\n");
 		} else if (set.right instanceof VarUseILPN) {
 			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.DE));
-			ret.append(" ld E, (HL)\r\n");
-			ret.append(" INC HL\r\n");
+			ret.append(" ld DE, 0\r\n");
 			ret.append(" ld D, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld E, (HL)\r\n");
 		} else {
 			throw new Exception("Left isn't num or var use.");
 		}
@@ -511,9 +597,10 @@ public class CodeGenerator {
 			ret.append(" ld BC, " + num + "\r\n");
 		} else if (set.left instanceof VarUseILPN) {
 			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.BC));
-			ret.append(" ld C, (HL)\r\n");
-			ret.append(" INC HL\r\n");
+			ret.append(" ld BC, 0\r\n");
 			ret.append(" ld B, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld C, (HL)\r\n");
 		} else {
 			throw new Exception("Left isn't num or var use.");
 		}
@@ -522,9 +609,10 @@ public class CodeGenerator {
 			ret.append(" ld DE, " + num + "\r\n");
 		} else if (set.right instanceof VarUseILPN) {
 			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.DE));
-			ret.append(" ld E, (HL)\r\n");
-			ret.append(" INC HL\r\n");
+			ret.append(" ld DE, 0\r\n");
 			ret.append(" ld D, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld E, (HL)\r\n");
 		} else {
 			throw new Exception("Left isn't num or var use.");
 		}
@@ -559,9 +647,10 @@ public class CodeGenerator {
 			ret.append(" ld BC, " + num + "\r\n");
 		} else if (set.left instanceof VarUseILPN) {
 			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.BC));
-			ret.append(" ld C, (HL)\r\n");
-			ret.append(" INC HL\r\n");
+			ret.append(" ld BC, 0\r\n");
 			ret.append(" ld B, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld C, (HL)\r\n");
 		} else {
 			throw new Exception("Left isn't num or var use.");
 		}
@@ -570,9 +659,10 @@ public class CodeGenerator {
 			ret.append(" ld DE, " + num + "\r\n");
 		} else if (set.right instanceof VarUseILPN) {
 			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.DE));
-			ret.append(" ld E, (HL)\r\n");
-			ret.append(" INC HL\r\n");
+			ret.append(" ld DE, 0\r\n");
 			ret.append(" ld D, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld E, (HL)\r\n");
 		} else {
 			throw new Exception("Left isn't num or var use.");
 		}
@@ -716,4 +806,7 @@ public class CodeGenerator {
 		return ret.toString();
 	}
 
+	private int getUniqueNum() {
+		return uniqueNum++;
+	}
 }

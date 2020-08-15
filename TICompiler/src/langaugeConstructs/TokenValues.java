@@ -39,18 +39,18 @@ public class TokenValues {
 	);
 	
 	public static final Map<String, Set<String>> opTypes = Map.ofEntries(
-			Map.entry("+", Set.of("int", "float")), // v x
-			Map.entry("-", Set.of("int", "float")), // v x
-			Map.entry("*", Set.of("int", "float")), // x x
-			Map.entry("/", Set.of("int", "float")), // x x
-			Map.entry("<", Set.of("int", "float", "char")), // x x x 
-			Map.entry("<=", Set.of("int", "float", "char")), // x x x
-			Map.entry(">", Set.of("int", "float", "char")), // x x x
-			Map.entry(">=", Set.of("int", "float", "char")), // x x x
-			Map.entry("==", Set.of("int", "float", "char", "bool")), // v x x v
-			Map.entry("!=", Set.of("int", "float", "char", "bool")), // x x x v
-			Map.entry("&&", Set.of("bool")), // v
-			Map.entry("||", Set.of("bool")) // v
+			Map.entry("+",  Set.of("int", "float")), 					// v x
+			Map.entry("-",  Set.of("int", "float")), 					// v x
+			Map.entry("*",  Set.of("int", "float")), 					// x x
+			Map.entry("/",  Set.of("int", "float")), 					// x x
+			Map.entry("<",  Set.of("int", "float", "char")), 			// x x x 
+			Map.entry("<=", Set.of("int", "float", "char")), 			// x x x
+			Map.entry(">",  Set.of("int", "float", "char")), 			// x x x
+			Map.entry(">=", Set.of("int", "float", "char")), 			// x x x
+			Map.entry("==", Set.of("int", "float", "char", "bool")), 	// v x v v
+			Map.entry("!=", Set.of("int", "float", "char", "bool")), 	// v x v v
+			Map.entry("&&", Set.of(                        "bool")), 	//       v
+			Map.entry("||", Set.of(                        "bool")) 	//       v
 	);
 	
 	public static final Map<String, Map<String, String>> opReturnTypes = Map.ofEntries(
