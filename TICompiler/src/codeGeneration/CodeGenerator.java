@@ -538,9 +538,9 @@ public class CodeGenerator {
 		ret.append(" ld B, H\r\n");
 		ret.append(" ld C, L\r\n");
 		ret.append(getVarInRegisterHL(set.sete, section, Register.DE));
-		ret.append(" ld (HL), C\r\n");
-		ret.append(" INC HL\r\n");
 		ret.append(" ld (HL), B\r\n");
+		ret.append(" INC HL\r\n");
+		ret.append(" ld (HL), C\r\n");
 
 		return ret.toString();		
 	}
@@ -581,9 +581,9 @@ public class CodeGenerator {
 		ret.append(" ld B, H\r\n");
 		ret.append(" ld C, L\r\n");
 		ret.append(getVarInRegisterHL(set.sete, section, Register.DE));
-		ret.append(" ld (HL), C\r\n");
-		ret.append(" INC HL\r\n");
 		ret.append(" ld (HL), B\r\n");
+		ret.append(" INC HL\r\n");
+		ret.append(" ld (HL), C\r\n");
 
 		return ret.toString();		
 	}
