@@ -1,32 +1,6 @@
 main {
-	var numX:int = 0;
-	var numY:int = 0;
-	var lastKey:int = 0;
-	while(lastKey != 5) {
-		var newKey:int = getKey();
-		if(newKey == 1) {
-			numX += 1;
-		} else if (newKey == 2) {
-			numX -= 1;
-		} else if (newKey == 3) {
-			numY -= 1;
-		} else if (newKey == 4) {
-			numY += 1;
-		} else {
-			lastKey = newKey;
-		}
-		clearScreen();
-		printInt(newKey, 0, 0);
-//		printInt(numX, 1, 0);
-		rawf:assign,numX,HL,BC
-		raw: ld A, (HL)
-		raw: call _PutC
-		raw: INC HL
-		raw: ld A, (HL)
-		raw: call _PutC
-//		printInt(numY, 2, 0);
-//		printInt(lastKey, numY, numX);
-	}
+	clearScreen();
+	printInt(80/10, 0, 0);
 }
 
 func clearScreen() {

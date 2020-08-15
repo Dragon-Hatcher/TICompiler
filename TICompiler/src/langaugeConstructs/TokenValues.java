@@ -41,8 +41,8 @@ public class TokenValues {
 	public static final Map<String, Set<String>> opTypes = Map.ofEntries(
 			Map.entry("+",  Set.of("int", "float")), 					// v x
 			Map.entry("-",  Set.of("int", "float")), 					// v x
-			Map.entry("*",  Set.of("int", "float")), 					// x x
-			Map.entry("/",  Set.of("int", "float")), 					// x x
+			Map.entry("*",  Set.of("int", "float")), 					// v x
+			Map.entry("/",  Set.of("int", "float")), 					// v x
 			Map.entry("<",  Set.of("int", "float", "char")), 			// x x x 
 			Map.entry("<=", Set.of("int", "float", "char")), 			// x x x
 			Map.entry(">",  Set.of("int", "float", "char")), 			// x x x

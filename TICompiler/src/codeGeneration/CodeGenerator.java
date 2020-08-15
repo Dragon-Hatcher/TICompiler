@@ -425,6 +425,20 @@ public class CodeGenerator {
 			default:
 				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
 			}
+		case MULTIPLY:
+			switch(set.lrTypes) {
+			case "int":
+				return parseMulUInt(set, section);
+			default:
+				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
+			}
+		case DIVIDE:
+			switch(set.lrTypes) {
+			case "int":
+				return parseDivUInt(set, section);
+			default:
+				throw new Exception("Don't know how to handle type " + set.lrTypes + " for op " + set.operator);
+			}
 		default:
 			throw new Exception("Don't know how to handle operator " + set.operator);
 		}
@@ -504,6 +518,88 @@ public class CodeGenerator {
 
 	}
 	
+	private String parseMulUInt(SetResultILPN set, ArrayList<Integer> section) throws Exception {
+		StringBuilder ret = new StringBuilder();
+		ret.append(";Mul uint\r\n");
+		
+		if(set.left instanceof NumILPN) {
+			int num = Integer.parseInt(((NumILPN)set.left).num);
+			ret.append(" ld BC, " + num + "\r\n");
+		} else if (set.left instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.BC));
+			ret.append(" ld BC, 0\r\n");
+			ret.append(" ld B, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld C, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't num or var use.");
+		}
+		if(set.right instanceof NumILPN) {
+			int num = Integer.parseInt(((NumILPN)set.right).num);
+			ret.append(" ld DE, " + num + "\r\n");
+		} else if (set.right instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.DE));
+			ret.append(" ld DE, 0\r\n");
+			ret.append(" ld D, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld E, (HL)\r\n");
+		} else {
+			throw new Exception("Left isn't num or var use.");
+		}
+		ret.append(" PUSH DE\r\n");
+		ret.append(" POP HL\r\n");
+		ret.append(" call __imulu\r\n");
+		ret.append(" ld B, H\r\n");
+		ret.append(" ld C, L\r\n");
+		ret.append(getVarInRegisterHL(set.sete, section, Register.DE));
+		ret.append(" ld (HL), B\r\n");
+		ret.append(" INC HL\r\n");
+		ret.append(" ld (HL), C\r\n");
+
+		return ret.toString();		
+	}
+	
+	private String parseDivUInt(SetResultILPN set, ArrayList<Integer> section) throws Exception {
+		StringBuilder ret = new StringBuilder();
+		ret.append(";Mul uint\r\n");
+		
+		if(set.right instanceof NumILPN) {
+			int num = Integer.parseInt(((NumILPN)set.right).num);
+			ret.append(" ld BC, " + num + "\r\n");
+		} else if (set.right instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.right).name, section, Register.BC));
+			ret.append(" ld BC, 0\r\n");
+			ret.append(" ld B, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld C, (HL)\r\n");
+		} else {
+			throw new Exception("right isn't num or var use.");
+		}
+		if(set.left instanceof NumILPN) {
+			int num = Integer.parseInt(((NumILPN)set.left).num);
+			ret.append(" ld DE, " + num + "\r\n");
+		} else if (set.left instanceof VarUseILPN) {
+			ret.append(getVarInRegisterHL(((VarUseILPN)set.left).name, section, Register.DE));
+			ret.append(" ld DE, 0\r\n");
+			ret.append(" ld D, (HL)\r\n");
+			ret.append(" INC HL\r\n");
+			ret.append(" ld E, (HL)\r\n");
+		} else {
+			throw new Exception("right isn't num or var use.");
+		}
+		ret.append(" PUSH DE\r\n");
+		ret.append(" POP HL\r\n");
+		ret.append(" call __idivu\r\n");
+		ret.append(" ld B, H\r\n");
+		ret.append(" ld C, L\r\n");
+		ret.append(getVarInRegisterHL(set.sete, section, Register.DE));
+		ret.append(" ld (HL), B\r\n");
+		ret.append(" INC HL\r\n");
+		ret.append(" ld (HL), C\r\n");
+
+		return ret.toString();		
+	}
+	
 	private String parsePlusUInt(SetResultILPN set, ArrayList<Integer> section) throws Exception {
 		StringBuilder ret = new StringBuilder();
 		ret.append(";Add uint\r\n");
@@ -544,7 +640,6 @@ public class CodeGenerator {
 
 		return ret.toString();		
 	}
-
 
 	private String parseMinusUInt(SetResultILPN set, ArrayList<Integer> section) throws Exception {
 		StringBuilder ret = new StringBuilder();
